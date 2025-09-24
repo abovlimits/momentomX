@@ -1038,7 +1038,7 @@ function parseWorkoutText(text) {
     const blocks = [];
     let current = null;
 
-    const sectionRegex = /^(?:(?:\d+\.)|[-*•])?\s*(warm\s*-?\s*up|warmup|main(?:\s*(?:workout|lifts))?|cool\s*-?\s*down|cooldown|finisher|accessor(?:y|ies)|stretch(?:es)?)/i;
+    const sectionRegex = /^(?:(?:\d+\.)|[-*•])?\s*(warm\s*-?\s*up|warmup|main(?:\s*(?:workout|lifts))?|workout|cool\s*-?\s*down|cooldown|finisher|accessor(?:y|ies)|stretch(?:es)?)/i;
     const bulletRegex = /^[-*•]\s*(.+)$/;
 
     function startBlock(title) {
@@ -1054,6 +1054,7 @@ function parseWorkoutText(text) {
         if (r.includes('accessor')) return 'Accessories';
         if (r.includes('stretch')) return 'Stretches';
         if (r.includes('main')) return 'Main';
+        if (r.includes('workout')) return 'Workout';
         return raw.replace(/\*|#/g, '').trim().replace(/\b\w/g, c => c.toUpperCase()) || 'Workout';
     }
 
@@ -1069,6 +1070,13 @@ function parseWorkoutText(text) {
         const secMatch = raw.match(sectionRegex);
         if (secMatch && (raw.endsWith(':') || raw.endsWith('.') || raw.toLowerCase() === secMatch[0].toLowerCase())) {
             startBlock(secMatch[1]);
+            continue;
+        }
+
+        // Italic-only headings like *Workout*
+        const italicMatch = raw.match(/^\*(.+)\*$/);
+        if (italicMatch && sectionRegex.test(italicMatch[1])) {
+            startBlock(italicMatch[1]);
             continue;
         }
 
