@@ -1,1 +1,10 @@
+[# Force Nixpacks install behavior]
+[phases.setup]
+nixPkgs = ['nodejs-18_x']
+
+[phases.install]
+cmds = ['npm install --omit=dev']
+
+[start]
+cmd = 'node server/server.js'
 
