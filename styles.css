@@ -668,8 +668,10 @@ input[type="password"] {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 60vh;
-  margin-bottom: 40px;
+  width: 100%;
+  min-height: calc(100vh - 160px); /* centers better in viewport under header */
+  margin: 0 auto 40px;
+  padding: 20px 0;
 }
 
 .auth-container {
@@ -681,6 +683,8 @@ input[type="password"] {
   width: 100%;
   max-width: 450px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .auth-tabs {
