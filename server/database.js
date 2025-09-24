@@ -56,7 +56,7 @@ class DatabaseManager {
     }
 
     async createDatabase() {
-        const dbName = process.env.DB_NAME || process.env.MYSQLDATABASE || 'momentumx_db';
+        const dbName = this.dbConfig.database || process.env.DB_NAME || process.env.MYSQLDATABASE || 'railway';
         try {
             await this.connection.execute(`CREATE DATABASE IF NOT EXISTS ${dbName}`);
             console.log(`✅ Database '${dbName}' ready`);
@@ -226,19 +226,52 @@ class DatabaseManager {
 
         console.log('🎉 All database tables are ready!');
 
-        // Ensure preference columns exist for backward compatibility
+        // Ensure columns exist (robust across MySQL versions)
+        await this.ensureRequiredColumns();
+    }
+
+    async getCurrentSchema() {
+        const [rows] = await this.connection.execute('SELECT DATABASE() AS db');
+        return rows[0]?.db;
+    }
+
+    async ensureColumn(table, column, definition) {
+        const schema = await this.getCurrentSchema();
+        if (!schema) return;
+        const [rows] = await this.connection.execute(
+            'SELECT COUNT(*) AS cnt FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?',
+            [schema, table, column]
+        );
+        const exists = rows[0]?.cnt > 0;
+        if (!exists) {
+            console.log(`➕ Adding missing column ${table}.${column}`);
+            await this.connection.execute(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+        }
+    }
+
+    async ensureRequiredColumns() {
         try {
-            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS reps_style VARCHAR(20) DEFAULT 'auto'");
-            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS reps_min INT DEFAULT 8");
-            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS reps_max INT DEFAULT 12");
-            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS exercises_per_muscle VARCHAR(10) DEFAULT 'auto'");
-            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS sets_per_exercise VARCHAR(10) DEFAULT 'auto'");
-            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS rest_seconds VARCHAR(10) DEFAULT 'auto'");
-            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS include_bodyweight BOOLEAN DEFAULT TRUE");
-            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS focused_muscle VARCHAR(50) DEFAULT 'none'");
-            console.log('✅ Preference columns ensured (reps_style, reps_min, reps_max)');
+            // user_preferences
+            await this.ensureColumn('user_preferences', 'reps_style', "VARCHAR(20) DEFAULT 'auto'");
+            await this.ensureColumn('user_preferences', 'reps_min', 'INT DEFAULT 8');
+            await this.ensureColumn('user_preferences', 'reps_max', 'INT DEFAULT 12');
+            await this.ensureColumn('user_preferences', 'exercises_per_muscle', "VARCHAR(10) DEFAULT 'auto'");
+            await this.ensureColumn('user_preferences', 'sets_per_exercise', "VARCHAR(10) DEFAULT 'auto'");
+            await this.ensureColumn('user_preferences', 'rest_seconds', "VARCHAR(10) DEFAULT 'auto'");
+            await this.ensureColumn('user_preferences', 'include_bodyweight', 'BOOLEAN DEFAULT TRUE');
+            await this.ensureColumn('user_preferences', 'focused_muscle', "VARCHAR(50) DEFAULT 'none'");
+
+            // user_stats
+            await this.ensureColumn('user_stats', 'total_workout_time_minutes', 'INT DEFAULT 0');
+            await this.ensureColumn('user_stats', 'total_calories_burned', 'INT DEFAULT 0');
+            await this.ensureColumn('user_stats', 'last_workout_date', 'DATE NULL');
+            await this.ensureColumn('user_stats', 'weight_kg', 'DECIMAL(5,2) NULL');
+            await this.ensureColumn('user_stats', 'height_cm', 'INT NULL');
+            await this.ensureColumn('user_stats', 'fitness_level', "VARCHAR(20) DEFAULT 'beginner'");
+
+            console.log('✅ Verified/added required columns for preferences and stats');
         } catch (error) {
-            console.warn('⚠️ Could not ensure reps preference columns:', error.message);
+            console.warn('⚠️ Column verification failed:', error.message);
         }
     }
 

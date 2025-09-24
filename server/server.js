@@ -184,26 +184,63 @@ app.post('/api/auth/login', async (req, res) => {
 app.get('/api/user/profile', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
+        try {
+            const profile = await db.query(`
+                SELECT 
+                    u.id, u.username, u.email, u.join_date, u.last_login,
+                    up.split_type, up.difficulty_level, up.day_override, up.reps_style, up.reps_min, up.reps_max,
+                    up.exercises_per_muscle, up.sets_per_exercise, up.rest_seconds, up.include_bodyweight, up.focused_muscle,
+                    us.total_workouts, us.current_streak_days, us.longest_streak_days,
+                    us.total_workout_time_minutes, us.total_calories_burned,
+                    us.last_workout_date, us.weight_kg, us.height_cm, us.fitness_level
+                FROM users u
+                LEFT JOIN user_preferences up ON u.id = up.user_id
+                LEFT JOIN user_stats us ON u.id = us.user_id
+                WHERE u.id = ?
+            `, [userId]);
 
-        const profile = await db.query(`
-            SELECT 
-                u.id, u.username, u.email, u.join_date, u.last_login,
-                up.split_type, up.difficulty_level, up.day_override, up.reps_style, up.reps_min, up.reps_max,
-                up.exercises_per_muscle, up.sets_per_exercise, up.rest_seconds, up.include_bodyweight, up.focused_muscle,
-                us.total_workouts, us.current_streak_days, us.longest_streak_days,
-                us.total_workout_time_minutes, us.total_calories_burned,
-                us.last_workout_date, us.weight_kg, us.height_cm, us.fitness_level
-            FROM users u
-            LEFT JOIN user_preferences up ON u.id = up.user_id
-            LEFT JOIN user_stats us ON u.id = us.user_id
-            WHERE u.id = ?
-        `, [userId]);
-
-        if (profile.length === 0) {
-            return res.status(404).json({ error: 'User not found' });
+            if (profile.length === 0) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+            return res.json(profile[0]);
+        } catch (innerErr) {
+            // Fallback for schema mismatches (e.g., unknown columns)
+            const msg = String(innerErr?.message || '');
+            if (innerErr?.code === 'ER_BAD_FIELD_ERROR' || msg.includes('Unknown column')) {
+                const users = await db.query(`SELECT id, username, email, join_date, last_login FROM users WHERE id = ?`, [userId]);
+                if (users.length === 0) return res.status(404).json({ error: 'User not found' });
+                const u = users[0];
+                return res.json({
+                    id: u.id,
+                    username: u.username,
+                    email: u.email,
+                    join_date: u.join_date,
+                    last_login: u.last_login,
+                    // Reasonable defaults
+                    split_type: 'upper-lower',
+                    difficulty_level: 'intermediate',
+                    day_override: 'auto',
+                    reps_style: 'auto',
+                    reps_min: 8,
+                    reps_max: 12,
+                    exercises_per_muscle: 'auto',
+                    sets_per_exercise: 'auto',
+                    rest_seconds: 'auto',
+                    include_bodyweight: 1,
+                    focused_muscle: 'none',
+                    total_workouts: 0,
+                    current_streak_days: 0,
+                    longest_streak_days: 0,
+                    total_workout_time_minutes: 0,
+                    total_calories_burned: 0,
+                    last_workout_date: null,
+                    weight_kg: null,
+                    height_cm: null,
+                    fitness_level: 'beginner'
+                });
+            }
+            throw innerErr;
         }
-
-        res.json(profile[0]);
     } catch (error) {
         console.error('Profile fetch error:', error);
         res.status(500).json({ error: 'Internal server error' });

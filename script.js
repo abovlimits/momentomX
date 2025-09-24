@@ -100,32 +100,43 @@ class UserManager {
         // Register via backend
         return apiClient.post('/auth/register', { username, email, password }).then(async (res) => {
             apiClient.setToken(res.token);
-            // hydrate current user from profile endpoint
-            const profile = await apiClient.get('/user/profile');
-            const machines = await apiClient.get('/user/machines');
-            this.currentUser = {
-                id: profile.id,
-                username: profile.username,
-                email: profile.email,
-                joinDate: profile.join_date?.split('T')[0] || new Date().toISOString().split('T')[0],
-                data: {
-                    machines: (machines || []).map(m => m.machine_name),
-                    splitType: profile.split_type || 'upper-lower',
-                    difficulty: profile.difficulty_level || 'intermediate',
-                    dayOverride: profile.day_override || 'auto',
-                    repsStyle: profile.reps_style || 'auto',
-                    repsMin: profile.reps_min ?? 8,
-                    repsMax: profile.reps_max ?? 12,
-                    exercisesPerMuscle: profile.exercises_per_muscle || 'auto',
-                    setsPerExercise: profile.sets_per_exercise || 'auto',
-                    restSeconds: profile.rest_seconds || 'auto',
-                    includeBodyweight: profile.include_bodyweight ?? true,
-                    workoutsGenerated: profile.total_workouts || 0,
-                    currentStreak: profile.current_streak_days || 0,
-                    lastWorkoutDate: profile.last_workout_date || null,
-                    totalWorkoutTime: profile.total_workout_time_minutes || 0
-                }
-            };
+            try {
+                // hydrate current user from profile endpoint
+                const profile = await apiClient.get('/user/profile');
+                const machines = await apiClient.get('/user/machines');
+                this.currentUser = {
+                    id: profile.id,
+                    username: profile.username,
+                    email: profile.email,
+                    joinDate: profile.join_date?.split('T')[0] || new Date().toISOString().split('T')[0],
+                    data: {
+                        machines: (machines || []).map(m => m.machine_name),
+                        splitType: profile.split_type || 'upper-lower',
+                        difficulty: profile.difficulty_level || 'intermediate',
+                        dayOverride: profile.day_override || 'auto',
+                        repsStyle: profile.reps_style || 'auto',
+                        repsMin: profile.reps_min ?? 8,
+                        repsMax: profile.reps_max ?? 12,
+                        exercisesPerMuscle: profile.exercises_per_muscle || 'auto',
+                        setsPerExercise: profile.sets_per_exercise || 'auto',
+                        restSeconds: profile.rest_seconds || 'auto',
+                        includeBodyweight: profile.include_bodyweight ?? true,
+                        workoutsGenerated: profile.total_workouts || 0,
+                        currentStreak: profile.current_streak_days || 0,
+                        lastWorkoutDate: profile.last_workout_date || null,
+                        totalWorkoutTime: profile.total_workout_time_minutes || 0
+                    }
+                };
+            } catch (e) {
+                console.warn('Profile fetch failed after register; using defaults:', e.message);
+                this.currentUser = {
+                    id: res.user?.id || 0,
+                    username: res.user?.username || username,
+                    email: res.user?.email || email,
+                    joinDate: new Date().toISOString().split('T')[0],
+                    data: this.getDefaultUserData()
+                };
+            }
             localStorage.setItem('momentumx_currentUser', JSON.stringify(this.currentUser));
             return this.currentUser;
         });
@@ -144,32 +155,43 @@ class UserManager {
         }
         return apiClient.post('/auth/login', { username, password }).then(async (res) => {
             apiClient.setToken(res.token);
-            const profile = await apiClient.get('/user/profile');
-            const machines = await apiClient.get('/user/machines');
-            this.currentUser = {
-                id: profile.id,
-                username: profile.username,
-                email: profile.email,
-                joinDate: profile.join_date?.split('T')[0] || new Date().toISOString().split('T')[0],
-                data: {
-                    machines: (machines || []).map(m => m.machine_name),
-                    splitType: profile.split_type || 'upper-lower',
-                    difficulty: profile.difficulty_level || 'intermediate',
-                    dayOverride: profile.day_override || 'auto',
-                    repsStyle: profile.reps_style || 'auto',
-                    repsMin: profile.reps_min ?? 8,
-                    repsMax: profile.reps_max ?? 12,
-                    exercisesPerMuscle: profile.exercises_per_muscle || 'auto',
-                    setsPerExercise: profile.sets_per_exercise || 'auto',
-                    restSeconds: profile.rest_seconds || 'auto',
-                    includeBodyweight: profile.include_bodyweight ?? true,
-                    focusedMuscle: profile.focused_muscle || 'none',
-                    workoutsGenerated: profile.total_workouts || 0,
-                    currentStreak: profile.current_streak_days || 0,
-                    lastWorkoutDate: profile.last_workout_date || null,
-                    totalWorkoutTime: profile.total_workout_time_minutes || 0
-                }
-            };
+            try {
+                const profile = await apiClient.get('/user/profile');
+                const machines = await apiClient.get('/user/machines');
+                this.currentUser = {
+                    id: profile.id,
+                    username: profile.username,
+                    email: profile.email,
+                    joinDate: profile.join_date?.split('T')[0] || new Date().toISOString().split('T')[0],
+                    data: {
+                        machines: (machines || []).map(m => m.machine_name),
+                        splitType: profile.split_type || 'upper-lower',
+                        difficulty: profile.difficulty_level || 'intermediate',
+                        dayOverride: profile.day_override || 'auto',
+                        repsStyle: profile.reps_style || 'auto',
+                        repsMin: profile.reps_min ?? 8,
+                        repsMax: profile.reps_max ?? 12,
+                        exercisesPerMuscle: profile.exercises_per_muscle || 'auto',
+                        setsPerExercise: profile.sets_per_exercise || 'auto',
+                        restSeconds: profile.rest_seconds || 'auto',
+                        includeBodyweight: profile.include_bodyweight ?? true,
+                        focusedMuscle: profile.focused_muscle || 'none',
+                        workoutsGenerated: profile.total_workouts || 0,
+                        currentStreak: profile.current_streak_days || 0,
+                        lastWorkoutDate: profile.last_workout_date || null,
+                        totalWorkoutTime: profile.total_workout_time_minutes || 0
+                    }
+                };
+            } catch (e) {
+                console.warn('Profile fetch failed after login; using defaults:', e.message);
+                this.currentUser = {
+                    id: res.user?.id || 0,
+                    username: res.user?.username || username,
+                    email: res.user?.email || '',
+                    joinDate: new Date().toISOString().split('T')[0],
+                    data: this.getDefaultUserData()
+                };
+            }
             localStorage.setItem('momentumx_currentUser', JSON.stringify(this.currentUser));
             return this.currentUser;
         });
