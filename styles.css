@@ -1,0 +1,1012 @@
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  min-height: 100vh;
+  color: #e2e8f0;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  color: #f7fafc;
+  position: relative;
+}
+
+.logo {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tagline {
+  font-size: 1.2rem;
+  font-weight: 300;
+  opacity: 0.8;
+  color: #cbd5e0;
+}
+
+.user-info {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(26, 32, 44, 0.8);
+  padding: 10px 20px;
+  border-radius: 25px;
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.welcome-message {
+  color: #f7fafc;
+  font-weight: 500;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+/* Main content */
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+.section {
+  background: rgba(26, 32, 44, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(74, 85, 104, 0.3);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(102, 126, 234, 0.5);
+}
+
+.section h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #f7fafc;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Form elements */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #cbd5e0;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid rgba(74, 85, 104, 0.5);
+  background: rgba(45, 55, 72, 0.8);
+  color: #f7fafc;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease,
+    background-color 0.3s ease;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #667eea;
+  background: rgba(45, 55, 72, 1);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+input::placeholder {
+  color: #a0aec0;
+}
+
+input[type="password"] {
+  font-family: monospace;
+}
+
+/* Buttons */
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-secondary {
+  background: rgba(74, 85, 104, 0.6);
+  color: #f7fafc;
+  border: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.btn-secondary:hover {
+  background: rgba(74, 85, 104, 0.8);
+  border-color: rgba(102, 126, 234, 0.6);
+}
+
+.btn-large {
+  padding: 16px 32px;
+  font-size: 18px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.btn-danger {
+  background: #e53e3e;
+  color: white;
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+.btn-danger:hover {
+  background: #c53030;
+}
+
+/* API Status */
+.api-status {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.api-status.success {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.api-status.error {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+/* Machines grid */
+.machines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.machine-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(45, 55, 72, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(74, 85, 104, 0.4);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.machine-item:hover {
+  background: rgba(45, 55, 72, 0.8);
+  border-color: rgba(102, 126, 234, 0.5);
+}
+
+.machine-name {
+  font-weight: 500;
+  color: #f7fafc;
+}
+
+/* Current day display */
+.current-day {
+  background: rgba(45, 55, 72, 0.6);
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  margin-top: 15px;
+  border: 1px solid rgba(74, 85, 104, 0.4);
+}
+
+.current-day p {
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+  color: #cbd5e0;
+}
+
+#day-name,
+#workout-focus {
+  font-weight: 600;
+  color: #667eea;
+}
+
+/* Loading animation */
+.loading {
+  text-align: center;
+  padding: 40px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(74, 85, 104, 0.3);
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Workout display */
+.workout-display {
+  margin-top: 20px;
+}
+
+.workout-content {
+  background: rgba(45, 55, 72, 0.6);
+  border-radius: 12px;
+  padding: 25px;
+  border-left: 4px solid #667eea;
+  border: 1px solid rgba(74, 85, 104, 0.4);
+}
+
+.workout-content h3 {
+  color: #667eea;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  text-align: center;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+  padding-bottom: 10px;
+}
+
+.formatted-workout {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.workout-section {
+  margin: 15px 0;
+  padding: 12px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 8px;
+  border-left: 3px solid #667eea;
+}
+
+.workout-section strong {
+  color: #667eea;
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.exercise-item {
+  margin: 8px 0;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  border-left: 2px solid rgba(102, 126, 234, 0.5);
+}
+
+.sets-reps {
+  color: #48bb78;
+  font-weight: 600;
+  background: rgba(72, 187, 120, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.workout-text {
+  color: #cbd5e0;
+  line-height: 1.6;
+}
+
+/* Remove old exercise list styles - using new workout formatting */
+
+.exercise-item:hover {
+  background: rgba(26, 32, 44, 0.8);
+  border-color: rgba(102, 126, 234, 0.5);
+}
+
+.exercise-name {
+  font-weight: 600;
+  color: #f7fafc;
+  margin-bottom: 5px;
+}
+
+.exercise-details {
+  color: #a0aec0;
+  font-size: 0.9rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+
+  .logo {
+    font-size: 2.5rem;
+  }
+
+  .section {
+    padding: 20px;
+  }
+
+  .machines-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .api-setup {
+    grid-column: 1 / -1;
+  }
+
+  .workout-section {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Utility classes */
+.mt-20 {
+  margin-top: 20px;
+}
+.mb-20 {
+  margin-bottom: 20px;
+}
+.text-center {
+  text-align: center;
+}
+.hidden {
+  display: none !important;
+}
+
+/* Day override controls */
+.day-override {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 15px;
+  padding: 15px;
+  background: rgba(45, 55, 72, 0.4);
+  border-radius: 8px;
+  border: 1px solid rgba(74, 85, 104, 0.3);
+}
+
+.day-override select {
+  flex: 1;
+  margin: 0;
+}
+
+.day-override button {
+  white-space: nowrap;
+}
+
+/* Stats cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.stat-card {
+  background: rgba(45, 55, 72, 0.6);
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid rgba(74, 85, 104, 0.4);
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #667eea;
+  display: block;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #a0aec0;
+  margin-top: 5px;
+}
+
+/* Workout timer */
+.workout-timer {
+  background: rgba(102, 126, 234, 0.1);
+  border: 2px solid rgba(102, 126, 234, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.timer-display {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #667eea;
+  font-family: "Courier New", monospace;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.timer-controls button {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+/* Enhanced workout display */
+.workout-text {
+  color: #cbd5e0;
+  line-height: 1.7;
+}
+
+.workout-text strong {
+  color: #f7fafc;
+}
+
+.workout-text p {
+  margin-bottom: 12px;
+}
+
+.workout-text ul {
+  margin-left: 20px;
+  margin-bottom: 15px;
+}
+
+.workout-text li {
+  margin-bottom: 8px;
+  color: #a0aec0;
+}
+
+/* Difficulty selector */
+.difficulty-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.difficulty-btn {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid transparent;
+  background: rgba(45, 55, 72, 0.6);
+  color: #cbd5e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.difficulty-btn:hover {
+  border-color: rgba(102, 126, 234, 0.5);
+}
+
+.difficulty-btn.active {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.2);
+  color: #667eea;
+}
+
+.difficulty-beginner.active {
+  border-color: #48bb78;
+  background: rgba(72, 187, 120, 0.2);
+  color: #48bb78;
+}
+.difficulty-intermediate.active {
+  border-color: #ed8936;
+  background: rgba(237, 137, 54, 0.2);
+  color: #ed8936;
+}
+.difficulty-advanced.active {
+  border-color: #e53e3e;
+  background: rgba(229, 62, 62, 0.2);
+  color: #e53e3e;
+}
+
+/* Authentication Section */
+.auth-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  margin-bottom: 40px;
+}
+
+.auth-container {
+  background: rgba(26, 32, 44, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(74, 85, 104, 0.3);
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 30px;
+  background: rgba(45, 55, 72, 0.6);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  color: #a0aec0;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.auth-tab.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+.auth-form h2 {
+  color: #f7fafc;
+  margin-bottom: 25px;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.demo-note {
+  text-align: center;
+  margin-top: 15px;
+  color: #a0aec0;
+  font-size: 0.9rem;
+  padding: 10px;
+  background: rgba(45, 55, 72, 0.4);
+  border-radius: 6px;
+  border: 1px solid rgba(74, 85, 104, 0.3);
+}
+
+/* Profile Section */
+.profile-section .profile-info {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.profile-details h3 {
+  color: #f7fafc;
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+}
+
+.profile-details p {
+  color: #a0aec0;
+  margin-bottom: 10px;
+}
+
+.member-since {
+  background: rgba(45, 55, 72, 0.4);
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: inline-block;
+  border: 1px solid rgba(74, 85, 104, 0.3);
+}
+
+.profile-stats .stats-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Workout History */
+.history-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: flex-end;
+}
+
+.workout-history {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.history-item {
+  background: rgba(45, 55, 72, 0.6);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(74, 85, 104, 0.4);
+  transition: background-color 0.3s ease;
+}
+
+.history-item:hover {
+  background: rgba(45, 55, 72, 0.8);
+}
+
+.history-date {
+  color: #667eea;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.history-workout-type {
+  color: #f7fafc;
+  font-weight: 500;
+  margin-top: 5px;
+}
+
+.history-duration {
+  color: #a0aec0;
+  font-size: 0.8rem;
+  margin-top: 5px;
+}
+
+.no-history {
+  text-align: center;
+  color: #a0aec0;
+  font-style: italic;
+  padding: 40px 20px;
+}
+
+/* Enhanced buttons */
+.btn-success {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  color: white;
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
+}
+
+/* Responsive design for auth */
+@media (max-width: 768px) {
+  /* Mobile container adjustments */
+  .container {
+    padding: 15px;
+    max-width: 100%;
+  }
+
+  /* Header mobile styles */
+  .logo {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+  }
+
+  .tagline {
+    font-size: 1rem;
+  }
+
+  /* Section mobile styles */
+  .section {
+    margin-bottom: 25px;
+    padding: 20px;
+  }
+
+  /* Form elements mobile styles */
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 12px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Button mobile styles */
+  .btn {
+    padding: 12px 20px;
+    font-size: 14px;
+    touch-action: manipulation; /* Improves touch responsiveness */
+  }
+
+  .btn-large {
+    padding: 15px 25px;
+    font-size: 16px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  /* Difficulty selector mobile */
+  .difficulty-selector {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .difficulty-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Machine grid mobile */
+  .machines-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .machine-item {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .machine-item .btn {
+    width: 100%;
+  }
+
+  /* Workout display mobile */
+  .workout-content {
+    padding: 15px;
+  }
+
+  .workout-content h3 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+  }
+
+  .workout-text {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Stats grid mobile */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 15px;
+  }
+
+  .stat-item {
+    padding: 15px;
+  }
+
+  .stat-value {
+    font-size: 1.8rem;
+  }
+
+  .stat-label {
+    font-size: 0.9rem;
+  }
+
+  /* Profile section mobile */
+  .profile-section .profile-info {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .profile-stats .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Auth container mobile */
+  .auth-container {
+    margin: 0 15px;
+    padding: 30px 25px;
+    max-width: 400px;
+    width: 100%;
+  }
+
+  .auth-tabs {
+    margin-bottom: 20px;
+  }
+
+  .auth-tab {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  /* User info mobile */
+  .user-info {
+    position: static;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .username-display {
+    font-size: 14px;
+  }
+
+  /* History section mobile */
+  .history-item {
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+
+  .history-date {
+    font-size: 12px;
+  }
+
+  .history-workout-type {
+    font-size: 14px;
+  }
+
+  .history-duration {
+    font-size: 12px;
+  }
+
+  /* Current day mobile */
+  .current-day {
+    text-align: center;
+    margin: 15px 0;
+  }
+
+  .current-day p {
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  /* Day override mobile */
+  .day-override {
+    margin-top: 15px;
+  }
+
+  .day-override label {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .day-override select {
+    width: 100%;
+  }
+
+  /* Loading spinner mobile */
+  .loading {
+    padding: 30px;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Notification mobile */
+  .notification {
+    left: 15px;
+    right: 15px;
+    top: 15px;
+    max-width: none;
+    min-width: 0;
+    margin: 0;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .container {
+    padding: 10px;
+  }
+
+  .logo {
+    font-size: 1.8rem;
+  }
+
+  .section {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+
+  .auth-container {
+    margin: 0 10px;
+    padding: 25px 20px;
+  }
+
+  .btn-large {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+  .container {
+    padding: 10px;
+  }
+
+  .section {
+    margin-bottom: 15px;
+    padding: 15px;
+  }
+
+  .logo {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+  }
+
+  .tagline {
+    font-size: 0.9rem;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .btn:hover {
+    background: var(--btn-bg, #4a5568);
+    transform: none;
+  }
+
+  .difficulty-btn:hover {
+    transform: none;
+  }
+
+  .machine-item .btn:hover {
+    transform: none;
+  }
+}

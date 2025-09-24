@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MomentumX - AI Workout Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">💪 MomentumX</h1>
+            <p class="tagline">AI-Powered Workout Generator</p>
+            <div class="user-info" id="user-info" style="display: none;">
+                <span class="welcome-message">Welcome, <span id="username-display"></span>!</span>
+                <button id="logout-btn" class="btn btn-secondary btn-small">Logout</button>
+            </div>
+        </header>
+
+        <!-- Authentication Section -->
+        <section class="auth-section" id="auth-section">
+            <div class="auth-container">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Login</button>
+                    <button class="auth-tab" data-tab="register">Register</button>
+                </div>
+                
+                <!-- Login Form -->
+                <div class="auth-form" id="login-form">
+                    <h2>🔐 Login to Your Account</h2>
+                    <div class="form-group">
+                        <label for="login-username">Username:</label>
+                        <input type="text" id="login-username" placeholder="Enter your username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password:</label>
+                        <input type="password" id="login-password" placeholder="Enter your password" required>
+                    </div>
+                    <button id="login-btn" class="btn btn-primary btn-large">Login</button>
+                    <p class="demo-note">Demo users: Try username "demo" with password "demo123"</p>
+                </div>
+                
+                <!-- Register Form -->
+                <div class="auth-form hidden" id="register-form">
+                    <h2>✨ Create New Account</h2>
+                    <div class="form-group">
+                        <label for="register-username">Username:</label>
+                        <input type="text" id="register-username" placeholder="Choose a username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email:</label>
+                        <input type="email" id="register-email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password:</label>
+                        <input type="password" id="register-password" placeholder="Choose a password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-confirm-password">Confirm Password:</label>
+                        <input type="password" id="register-confirm-password" placeholder="Confirm your password" required>
+                    </div>
+                    <button id="register-btn" class="btn btn-primary btn-large">Create Account</button>
+                </div>
+            </div>
+        </section>
+
+        <main class="main-content" id="main-content" style="display: none;">
+            <!-- User Profile Section -->
+            <section class="section profile-section">
+                <h2>👤 Profile & Stats</h2>
+                <div class="profile-info">
+                    <div class="profile-details">
+                        <h3 id="profile-username">Username</h3>
+                        <p id="profile-email">email@example.com</p>
+                        <p class="member-since">Member since: <span id="member-since-date"></span></p>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <span class="stat-number" id="machine-count">0</span>
+                                <div class="stat-label">Machines</div>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number" id="workouts-generated">0</span>
+                                <div class="stat-label">Workouts</div>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number" id="current-streak">0</span>
+                                <div class="stat-label">Day Streak</div>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number" id="total-workout-time">0</span>
+                                <div class="stat-label">Hours Trained</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Machine Management Section -->
+            <section class="section machine-section">
+                <h2>🏋️ Available Machines</h2>
+                <div class="form-group">
+                    <input type="text" id="machine-input" placeholder="Add a machine (e.g. Bench Press, Lat Pulldown)">
+                    <button id="add-machine" class="btn btn-secondary">Add Machine</button>
+                </div>
+                <div class="machines-grid" id="machines-list">
+                    <!-- Machines will be added dynamically -->
+                </div>
+            </section>
+
+            <!-- Split Configuration Section -->
+            <section class="section split-section">
+                <h2>📅 Workout Split & Day</h2>
+                <div class="form-group">
+                    <label for="split-type">Split Type:</label>
+                    <select id="split-type">
+                        <option value="upper-lower">Upper/Lower</option>
+                        <option value="push-pull-legs">Push/Pull/Legs</option>
+                        <option value="full-body">Full Body</option>
+                        <option value="bro-split">Bro Split (5-day)</option>
+                    </select>
+                </div>
+                
+                <!-- Difficulty Selector -->
+                <div class="form-group">
+                    <label>Workout Difficulty:</label>
+                    <div class="difficulty-selector">
+                        <button class="difficulty-btn difficulty-beginner" data-difficulty="beginner">🟢 Beginner</button>
+                        <button class="difficulty-btn difficulty-intermediate active" data-difficulty="intermediate">🟡 Intermediate</button>
+                        <button class="difficulty-btn difficulty-advanced" data-difficulty="advanced">🔴 Advanced</button>
+                    </div>
+                </div>
+
+                <div class="current-day" id="current-day">
+                    <p>Today is: <span id="day-name"></span></p>
+                    <p>Workout focus: <span id="workout-focus"></span></p>
+                    
+                    <!-- Day Override Controls -->
+                    <div class="day-override">
+                        <label for="day-override-select">Override today's focus:</label>
+                        <select id="day-override-select">
+                            <option value="auto">Auto (Follow Split)</option>
+                            <option value="upper">Upper Body</option>
+                            <option value="lower">Lower Body</option>
+                            <option value="push">Push (Chest/Shoulders/Triceps)</option>
+                            <option value="pull">Pull (Back/Biceps)</option>
+                            <option value="legs">Legs</option>
+                            <option value="chest">Chest Day</option>
+                            <option value="back">Back Day</option>
+                            <option value="shoulders">Shoulders</option>
+                            <option value="arms">Arms</option>
+                            <option value="full-body">Full Body</option>
+                        </select>
+                        <button id="apply-override" class="btn btn-secondary">Apply</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Workout Generation Section -->
+            <section class="section workout-section">
+                <h2>🎯 Today's Workout</h2>
+                
+                <button id="generate-workout" class="btn btn-primary btn-large">Generate Workout</button>
+                <button id="export-data" class="btn btn-secondary btn-small" style="margin-left: 10px;">Export Data</button>
+                <div class="loading" id="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Generating your personalized workout...</p>
+                </div>
+                <div class="workout-display" id="workout-display">
+                    <!-- Generated workout will appear here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
