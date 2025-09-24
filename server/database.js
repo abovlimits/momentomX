@@ -6,11 +6,13 @@ class DatabaseManager {
     constructor() {
         this.connection = null;
         this.dbConfig = {
-            host: 'switchback.proxy.rlwy.net',
-            user: process.env.DB_USER || 'root',
-            password: process.env.DB_PASSWORD || 'UkYijJCKeMSStzybmiwmBzUDoGJWxDOs',
-            port: process.env.DB_PORT || 13816,
-            multipleStatements: true
+            host: process.env.DB_HOST || process.env.MYSQLHOST || 'switchback.proxy.rlwy.net',
+            user: process.env.DB_USER || process.env.MYSQLUSER || 'root',
+            password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || 'UkYijJCKeMSStzybmiwmBzUDoGJWxDOs',
+            port: process.env.DB_PORT || process.env.MYSQLPORT || 13816,
+            database: process.env.DB_NAME || process.env.MYSQLDATABASE || 'momentumx_db',
+            multipleStatements: true,
+            ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
         };
     }
 
@@ -18,27 +20,35 @@ class DatabaseManager {
         try {
             console.log('🔌 Connecting to MySQL...');
             
-            // First connect without database to create it if needed
-            this.connection = await mysql.createConnection(this.dbConfig);
-            
-            // Create database if it doesn't exist
-            await this.createDatabase();
-            
-            // Close connection and reconnect with database
-            await this.connection.end();
-            
-            // Reconnect with database
-            this.connection = await mysql.createConnection({
-                ...this.dbConfig,
-                database: process.env.DB_NAME || 'momentumx_db'
-            });
-            
-            console.log('✅ Connected to MySQL database');
-            
-            // Check and create tables
-            await this.checkAndCreateTables();
-            
-            return this.connection;
+            // Try connecting directly with database first
+            try {
+                this.connection = await mysql.createConnection(this.dbConfig);
+                console.log('✅ Connected to MySQL database');
+                await this.checkAndCreateTables();
+                return this.connection;
+            } catch (error) {
+                console.log('Database might not exist, trying to create...');
+                
+                // Connect without database to create it
+                const { database, ...configWithoutDb } = this.dbConfig;
+                this.connection = await mysql.createConnection(configWithoutDb);
+                
+                // Create database if it doesn't exist
+                await this.createDatabase();
+                
+                // Close connection and reconnect with database
+                await this.connection.end();
+                
+                // Reconnect with database
+                this.connection = await mysql.createConnection(this.dbConfig);
+                
+                console.log('✅ Connected to MySQL database');
+                
+                // Check and create tables
+                await this.checkAndCreateTables();
+                
+                return this.connection;
+            }
         } catch (error) {
             console.error('❌ Database initialization failed:', error.message);
             throw error;
@@ -46,7 +56,7 @@ class DatabaseManager {
     }
 
     async createDatabase() {
-        const dbName = process.env.DB_NAME || 'momentumx_db';
+        const dbName = process.env.DB_NAME || process.env.MYSQLDATABASE || 'momentumx_db';
         try {
             await this.connection.execute(`CREATE DATABASE IF NOT EXISTS ${dbName}`);
             console.log(`✅ Database '${dbName}' ready`);
