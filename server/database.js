@@ -111,6 +111,9 @@ class DatabaseManager {
                         day_override VARCHAR(50) DEFAULT 'auto',
                         preferred_workout_duration INT DEFAULT 60,
                         gemini_api_key VARCHAR(255) NULL,
+                        reps_style VARCHAR(20) DEFAULT 'auto',
+                        reps_min INT DEFAULT 8,
+                        reps_max INT DEFAULT 12,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -217,6 +220,16 @@ class DatabaseManager {
         }
 
         console.log('🎉 All database tables are ready!');
+
+        // Ensure preference columns exist for backward compatibility
+        try {
+            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS reps_style VARCHAR(20) DEFAULT 'auto'");
+            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS reps_min INT DEFAULT 8");
+            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS reps_max INT DEFAULT 12");
+            console.log('✅ Preference columns ensured (reps_style, reps_min, reps_max)');
+        } catch (error) {
+            console.warn('⚠️ Could not ensure reps preference columns:', error.message);
+        }
     }
 
     async query(sql, params = []) {

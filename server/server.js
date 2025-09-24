@@ -188,7 +188,7 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
         const profile = await db.query(`
             SELECT 
                 u.id, u.username, u.email, u.join_date, u.last_login,
-                up.split_type, up.difficulty_level, up.day_override,
+                up.split_type, up.difficulty_level, up.day_override, up.reps_style, up.reps_min, up.reps_max,
                 us.total_workouts, us.current_streak_days, us.longest_streak_days,
                 us.total_workout_time_minutes, us.total_calories_burned,
                 us.last_workout_date, us.weight_kg, us.height_cm, us.fitness_level
@@ -213,13 +213,19 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
 app.put('/api/user/preferences', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
-        const { split_type, difficulty_level, day_override, gemini_api_key } = req.body;
+        const { split_type, difficulty_level, day_override, gemini_api_key, reps_style, reps_min, reps_max } = req.body;
 
         await db.query(`
             UPDATE user_preferences 
-            SET split_type = ?, difficulty_level = ?, day_override = ?, gemini_api_key = ?
+            SET split_type = COALESCE(?, split_type), 
+                difficulty_level = COALESCE(?, difficulty_level), 
+                day_override = COALESCE(?, day_override), 
+                gemini_api_key = COALESCE(?, gemini_api_key),
+                reps_style = COALESCE(?, reps_style),
+                reps_min = COALESCE(?, reps_min),
+                reps_max = COALESCE(?, reps_max)
             WHERE user_id = ?
-        `, [split_type, difficulty_level, day_override, gemini_api_key, userId]);
+        `, [split_type, difficulty_level, day_override, gemini_api_key, reps_style, reps_min, reps_max, userId]);
 
         res.json({ message: 'Preferences updated successfully' });
     } catch (error) {

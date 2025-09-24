@@ -70,6 +70,9 @@ class UserManager {
                     splitType: profile.split_type || 'upper-lower',
                     difficulty: profile.difficulty_level || 'intermediate',
                     dayOverride: profile.day_override || 'auto',
+                    repsStyle: profile.reps_style || 'auto',
+                    repsMin: profile.reps_min ?? 8,
+                    repsMax: profile.reps_max ?? 12,
                     workoutsGenerated: profile.total_workouts || 0,
                     currentStreak: profile.current_streak_days || 0,
                     lastWorkoutDate: profile.last_workout_date || null,
@@ -105,6 +108,9 @@ class UserManager {
                     splitType: profile.split_type || 'upper-lower',
                     difficulty: profile.difficulty_level || 'intermediate',
                     dayOverride: profile.day_override || 'auto',
+                    repsStyle: profile.reps_style || 'auto',
+                    repsMin: profile.reps_min ?? 8,
+                    repsMax: profile.reps_max ?? 12,
                     workoutsGenerated: profile.total_workouts || 0,
                     currentStreak: profile.current_streak_days || 0,
                     lastWorkoutDate: profile.last_workout_date || null,
@@ -227,6 +233,9 @@ class UserManager {
             splitType: 'upper-lower',
             difficulty: 'intermediate',
             dayOverride: 'auto',
+            repsStyle: 'auto',
+            repsMin: 8,
+            repsMax: 12,
             workoutsGenerated: 0,
             currentStreak: 0,
             lastWorkoutDate: null,
@@ -358,7 +367,13 @@ function initElements() {
         workoutFocus: document.getElementById('workout-focus'),
         
         // Export button
-        exportDataBtn: document.getElementById('export-data')
+        exportDataBtn: document.getElementById('export-data'),
+
+        // Reps range controls
+        repsStyle: document.getElementById('reps-style'),
+        repsCustomWrap: document.getElementById('reps-custom'),
+        repsMin: document.getElementById('reps-min'),
+        repsMax: document.getElementById('reps-max')
     };
 }
 
@@ -415,6 +430,9 @@ function showMainApp(user) {
     
     // Update user info display
     if (elements.usernameDisplay) elements.usernameDisplay.textContent = user.username;
+        if (Object.prototype.hasOwnProperty.call(data, 'repsStyle')) prefPayload.reps_style = data.repsStyle;
+        if (Object.prototype.hasOwnProperty.call(data, 'repsMin')) prefPayload.reps_min = data.repsMin;
+        if (Object.prototype.hasOwnProperty.call(data, 'repsMax')) prefPayload.reps_max = data.repsMax;
     if (elements.profileUsername) elements.profileUsername.textContent = user.username;
     if (elements.profileEmail) elements.profileEmail.textContent = user.email;
     if (elements.memberSinceDate) elements.memberSinceDate.textContent = user.joinDate;
@@ -437,6 +455,16 @@ function loadUserData(data) {
     elements.difficultyBtns.forEach(btn => {
         btn.classList.toggle('active', btn.dataset.difficulty === data.difficulty);
     });
+
+    // Reps UI
+    const style = data.repsStyle || 'auto';
+    if (elements.repsStyle) elements.repsStyle.value = style;
+    const useCustom = style === 'custom';
+    if (elements.repsCustomWrap) elements.repsCustomWrap.style.display = useCustom ? 'flex' : 'none';
+    if (useCustom) {
+        if (elements.repsMin) elements.repsMin.value = data.repsMin ?? 8;
+        if (elements.repsMax) elements.repsMax.value = data.repsMax ?? 12;
+    }
 }
 
 // Setup event listeners
@@ -468,6 +496,27 @@ function setupEventListeners() {
     }
     if (elements.generateWorkoutBtn) {
         elements.generateWorkoutBtn.addEventListener('click', generateWorkout);
+    }
+    // Reps style change handlers
+    if (elements.repsStyle) {
+        elements.repsStyle.addEventListener('change', () => {
+            const style = elements.repsStyle.value;
+            const isCustom = style === 'custom';
+            if (elements.repsCustomWrap) elements.repsCustomWrap.style.display = isCustom ? 'flex' : 'none';
+            saveUserData('repsStyle', style);
+        });
+    }
+    if (elements.repsMin) {
+        elements.repsMin.addEventListener('change', () => {
+            const min = Math.max(1, Math.min(30, parseInt(elements.repsMin.value || '8')));
+            saveUserData('repsMin', min);
+        });
+    }
+    if (elements.repsMax) {
+        elements.repsMax.addEventListener('change', () => {
+            const max = Math.max(1, Math.min(30, parseInt(elements.repsMax.value || '12')));
+            saveUserData('repsMax', max);
+        });
     }
     
     // Difficulty selection
@@ -772,6 +821,18 @@ function createWorkoutPrompt(workoutType, workoutFocus, difficulty, machines) {
             break;
     }
     
+    // Reps style guidance
+    const { repsStyle = 'auto', repsMin = 8, repsMax = 12 } = appState.currentUser?.data || {};
+    let repsGuidance = '';
+    switch (repsStyle) {
+        case 'strength': repsGuidance = 'Use 3–5 reps per set focused on strength.'; break;
+        case 'power': repsGuidance = 'Use 6–8 reps per set for power/hypertrophy.'; break;
+        case 'hypertrophy': repsGuidance = 'Use 8–12 reps per set for hypertrophy.'; break;
+        case 'endurance': repsGuidance = 'Use 12–15 reps per set for muscular endurance.'; break;
+        case 'custom': repsGuidance = `Use ${repsMin}–${repsMax} reps per set across main exercises.`; break;
+        case 'auto': default: repsGuidance = 'Choose reps appropriate for the difficulty level.'; break;
+    }
+
     // Advanced difficulty gets more exercises per muscle group
     const exerciseCount = difficulty === 'advanced' ? '8-10' : '5-6';
     const exerciseDetail = difficulty === 'advanced' ? 
@@ -788,7 +849,7 @@ ${difficultyInstructions}
 Please provide a CLEAN, ORGANIZED workout with:
 1. A brief warm-up (2-3 exercises)
 2. ${exerciseCount} main exercises using the available equipment
-3. Sets x Reps for each exercise
+3. Sets x Reps for each exercise. ${repsGuidance}
 4. A short cool-down (2-3 stretches)
 
 ${exerciseDetail}

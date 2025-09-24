@@ -133,6 +133,27 @@
                     </div>
                 </div>
 
+                <!-- Reps Range Selector -->
+                <div class="form-group">
+                    <label for="reps-style">Reps Range:</label>
+                    <div class="reps-selector" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                        <select id="reps-style">
+                            <option value="auto">Auto (by difficulty)</option>
+                            <option value="strength">Strength (3–5)</option>
+                            <option value="power">Power/Hypertrophy (6–8)</option>
+                            <option value="hypertrophy">Hypertrophy (8–12)</option>
+                            <option value="endurance">Endurance (12–15)</option>
+                            <option value="custom">Custom…</option>
+                        </select>
+                        <div id="reps-custom" style="display:none; gap:8px; align-items:center;">
+                            <label for="reps-min" style="margin-left:6px;">Min:</label>
+                            <input type="number" id="reps-min" min="1" max="30" step="1" style="width:70px;">
+                            <label for="reps-max">Max:</label>
+                            <input type="number" id="reps-max" min="1" max="30" step="1" style="width:70px;">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="current-day" id="current-day">
                     <p>Today is: <span id="day-name"></span></p>
                     <p>Workout focus: <span id="workout-focus"></span></p>
