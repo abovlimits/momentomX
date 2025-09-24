@@ -114,6 +114,11 @@ class DatabaseManager {
                         reps_style VARCHAR(20) DEFAULT 'auto',
                         reps_min INT DEFAULT 8,
                         reps_max INT DEFAULT 12,
+                        exercises_per_muscle VARCHAR(10) DEFAULT 'auto',
+                        sets_per_exercise VARCHAR(10) DEFAULT 'auto',
+                        rest_seconds VARCHAR(10) DEFAULT 'auto',
+                        include_bodyweight BOOLEAN DEFAULT TRUE,
+                        focused_muscle VARCHAR(50) DEFAULT 'none',
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -226,6 +231,11 @@ class DatabaseManager {
             await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS reps_style VARCHAR(20) DEFAULT 'auto'");
             await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS reps_min INT DEFAULT 8");
             await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS reps_max INT DEFAULT 12");
+            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS exercises_per_muscle VARCHAR(10) DEFAULT 'auto'");
+            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS sets_per_exercise VARCHAR(10) DEFAULT 'auto'");
+            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS rest_seconds VARCHAR(10) DEFAULT 'auto'");
+            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS include_bodyweight BOOLEAN DEFAULT TRUE");
+            await this.connection.execute("ALTER TABLE user_preferences ADD COLUMN IF NOT EXISTS focused_muscle VARCHAR(50) DEFAULT 'none'");
             console.log('✅ Preference columns ensured (reps_style, reps_min, reps_max)');
         } catch (error) {
             console.warn('⚠️ Could not ensure reps preference columns:', error.message);

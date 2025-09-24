@@ -154,6 +154,63 @@
                     </div>
                 </div>
 
+                <!-- Exercises per Muscle Group -->
+                <div class="form-group">
+                    <label for="exercises-per-muscle">Exercises per target muscle group:</label>
+                    <select id="exercises-per-muscle">
+                        <option value="auto">Auto (by difficulty)</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+
+                <!-- Sets and Rest -->
+                <div class="form-group" style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+                    <div>
+                        <label for="sets-per-exercise">Sets per exercise:</label>
+                        <select id="sets-per-exercise">
+                            <option value="auto">Auto</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="rest-seconds">Rest between sets (sec):</label>
+                        <select id="rest-seconds">
+                            <option value="auto">Auto</option>
+                            <option value="45">45</option>
+                            <option value="60">60</option>
+                            <option value="90">90</option>
+                            <option value="120">120</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" id="include-bodyweight">
+                        <label for="include-bodyweight">Include bodyweight exercises</label>
+                    </div>
+                </div>
+
+                <!-- Focused Muscle (optional) -->
+                <div class="form-group">
+                    <label for="focused-muscle">Focused muscle (optional):</label>
+                    <select id="focused-muscle">
+                        <option value="none">None</option>
+                        <option value="chest">Chest</option>
+                        <option value="back">Back</option>
+                        <option value="shoulders">Shoulders</option>
+                        <option value="arms">Arms (biceps/triceps)</option>
+                        <option value="glutes">Glutes</option>
+                        <option value="quads">Quads</option>
+                        <option value="hamstrings">Hamstrings</option>
+                        <option value="calves">Calves</option>
+                        <option value="core">Core/Abs</option>
+                    </select>
+                </div>
+
                 <div class="current-day" id="current-day">
                     <p>Today is: <span id="day-name"></span></p>
                     <p>Workout focus: <span id="workout-focus"></span></p>

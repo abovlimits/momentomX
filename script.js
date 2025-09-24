@@ -73,6 +73,11 @@ class UserManager {
                     repsStyle: profile.reps_style || 'auto',
                     repsMin: profile.reps_min ?? 8,
                     repsMax: profile.reps_max ?? 12,
+                    exercisesPerMuscle: profile.exercises_per_muscle || 'auto',
+                    setsPerExercise: profile.sets_per_exercise || 'auto',
+                    restSeconds: profile.rest_seconds || 'auto',
+                    includeBodyweight: profile.include_bodyweight ?? true,
+                    focusedMuscle: profile.focused_muscle || 'none',
                     workoutsGenerated: profile.total_workouts || 0,
                     currentStreak: profile.current_streak_days || 0,
                     lastWorkoutDate: profile.last_workout_date || null,
@@ -111,6 +116,10 @@ class UserManager {
                     repsStyle: profile.reps_style || 'auto',
                     repsMin: profile.reps_min ?? 8,
                     repsMax: profile.reps_max ?? 12,
+                    exercisesPerMuscle: profile.exercises_per_muscle || 'auto',
+                    setsPerExercise: profile.sets_per_exercise || 'auto',
+                    restSeconds: profile.rest_seconds || 'auto',
+                    includeBodyweight: profile.include_bodyweight ?? true,
                     workoutsGenerated: profile.total_workouts || 0,
                     currentStreak: profile.current_streak_days || 0,
                     lastWorkoutDate: profile.last_workout_date || null,
@@ -147,6 +156,14 @@ class UserManager {
                     splitType: profile.split_type || 'upper-lower',
                     difficulty: profile.difficulty_level || 'intermediate',
                     dayOverride: profile.day_override || 'auto',
+                    repsStyle: profile.reps_style || 'auto',
+                    repsMin: profile.reps_min ?? 8,
+                    repsMax: profile.reps_max ?? 12,
+                    exercisesPerMuscle: profile.exercises_per_muscle || 'auto',
+                    setsPerExercise: profile.sets_per_exercise || 'auto',
+                    restSeconds: profile.rest_seconds || 'auto',
+                    includeBodyweight: profile.include_bodyweight ?? true,
+                    focusedMuscle: profile.focused_muscle || 'none',
                     workoutsGenerated: profile.total_workouts || 0,
                     currentStreak: profile.current_streak_days || 0,
                     lastWorkoutDate: profile.last_workout_date || null,
@@ -183,11 +200,19 @@ class UserManager {
         // Demo user: local only
         if (this.currentUser.username === 'demo') return;
 
-        // Map preference keys to backend
+    // Map preference keys to backend
         const prefPayload = {};
         if (Object.prototype.hasOwnProperty.call(data, 'splitType')) prefPayload.split_type = data.splitType;
         if (Object.prototype.hasOwnProperty.call(data, 'difficulty')) prefPayload.difficulty_level = data.difficulty;
         if (Object.prototype.hasOwnProperty.call(data, 'dayOverride')) prefPayload.day_override = data.dayOverride;
+    if (Object.prototype.hasOwnProperty.call(data, 'repsStyle')) prefPayload.reps_style = data.repsStyle;
+    if (Object.prototype.hasOwnProperty.call(data, 'repsMin')) prefPayload.reps_min = data.repsMin;
+    if (Object.prototype.hasOwnProperty.call(data, 'repsMax')) prefPayload.reps_max = data.repsMax;
+    if (Object.prototype.hasOwnProperty.call(data, 'exercisesPerMuscle')) prefPayload.exercises_per_muscle = data.exercisesPerMuscle;
+    if (Object.prototype.hasOwnProperty.call(data, 'setsPerExercise')) prefPayload.sets_per_exercise = data.setsPerExercise;
+    if (Object.prototype.hasOwnProperty.call(data, 'restSeconds')) prefPayload.rest_seconds = data.restSeconds;
+    if (Object.prototype.hasOwnProperty.call(data, 'includeBodyweight')) prefPayload.include_bodyweight = data.includeBodyweight ? 1 : 0;
+    if (Object.prototype.hasOwnProperty.call(data, 'focusedMuscle')) prefPayload.focused_muscle = data.focusedMuscle;
 
         // Stats mapping
         const statsPayload = {};
@@ -236,6 +261,11 @@ class UserManager {
             repsStyle: 'auto',
             repsMin: 8,
             repsMax: 12,
+            exercisesPerMuscle: 'auto',
+            setsPerExercise: 'auto',
+            restSeconds: 'auto',
+            includeBodyweight: true,
+            focusedMuscle: 'none',
             workoutsGenerated: 0,
             currentStreak: 0,
             lastWorkoutDate: null,
@@ -373,7 +403,14 @@ function initElements() {
         repsStyle: document.getElementById('reps-style'),
         repsCustomWrap: document.getElementById('reps-custom'),
         repsMin: document.getElementById('reps-min'),
-        repsMax: document.getElementById('reps-max')
+        repsMax: document.getElementById('reps-max'),
+
+        // Extra workout prefs
+        exercisesPerMuscle: document.getElementById('exercises-per-muscle'),
+        setsPerExercise: document.getElementById('sets-per-exercise'),
+        restSeconds: document.getElementById('rest-seconds'),
+        includeBodyweight: document.getElementById('include-bodyweight'),
+        focusedMuscle: document.getElementById('focused-muscle')
     };
 }
 
@@ -430,9 +467,6 @@ function showMainApp(user) {
     
     // Update user info display
     if (elements.usernameDisplay) elements.usernameDisplay.textContent = user.username;
-        if (Object.prototype.hasOwnProperty.call(data, 'repsStyle')) prefPayload.reps_style = data.repsStyle;
-        if (Object.prototype.hasOwnProperty.call(data, 'repsMin')) prefPayload.reps_min = data.repsMin;
-        if (Object.prototype.hasOwnProperty.call(data, 'repsMax')) prefPayload.reps_max = data.repsMax;
     if (elements.profileUsername) elements.profileUsername.textContent = user.username;
     if (elements.profileEmail) elements.profileEmail.textContent = user.email;
     if (elements.memberSinceDate) elements.memberSinceDate.textContent = user.joinDate;
@@ -465,6 +499,13 @@ function loadUserData(data) {
         if (elements.repsMin) elements.repsMin.value = data.repsMin ?? 8;
         if (elements.repsMax) elements.repsMax.value = data.repsMax ?? 12;
     }
+
+    // Extra workout prefs
+    if (elements.exercisesPerMuscle) elements.exercisesPerMuscle.value = data.exercisesPerMuscle || 'auto';
+    if (elements.setsPerExercise) elements.setsPerExercise.value = data.setsPerExercise || 'auto';
+    if (elements.restSeconds) elements.restSeconds.value = data.restSeconds || 'auto';
+    if (elements.includeBodyweight) elements.includeBodyweight.checked = !!data.includeBodyweight;
+    if (elements.focusedMuscle) elements.focusedMuscle.value = data.focusedMuscle || 'none';
 }
 
 // Setup event listeners
@@ -516,6 +557,35 @@ function setupEventListeners() {
         elements.repsMax.addEventListener('change', () => {
             const max = Math.max(1, Math.min(30, parseInt(elements.repsMax.value || '12')));
             saveUserData('repsMax', max);
+        });
+    }
+    if (elements.exercisesPerMuscle) {
+        elements.exercisesPerMuscle.addEventListener('change', () => {
+            const v = elements.exercisesPerMuscle.value;
+            saveUserData('exercisesPerMuscle', v);
+        });
+    }
+    if (elements.setsPerExercise) {
+        elements.setsPerExercise.addEventListener('change', () => {
+            const v = elements.setsPerExercise.value;
+            saveUserData('setsPerExercise', v);
+        });
+    }
+    if (elements.restSeconds) {
+        elements.restSeconds.addEventListener('change', () => {
+            const v = elements.restSeconds.value;
+            saveUserData('restSeconds', v);
+        });
+    }
+    if (elements.includeBodyweight) {
+        elements.includeBodyweight.addEventListener('change', () => {
+            saveUserData('includeBodyweight', elements.includeBodyweight.checked);
+        });
+    }
+    if (elements.focusedMuscle) {
+        elements.focusedMuscle.addEventListener('change', () => {
+            const v = elements.focusedMuscle.value;
+            saveUserData('focusedMuscle', v);
         });
     }
     
@@ -838,6 +908,14 @@ function createWorkoutPrompt(workoutType, workoutFocus, difficulty, machines) {
     const exerciseDetail = difficulty === 'advanced' ? 
         'Include 3-4 exercises per major muscle group being targeted. Use compound movements and isolation exercises.' : 
         'Mix compound and isolation exercises efficiently.';
+
+    // Additional guidance based on preferences
+    const d = appState.currentUser?.data || {};
+    const muscleExercisesText = d.exercisesPerMuscle && d.exercisesPerMuscle !== 'auto' ? `Aim for ${d.exercisesPerMuscle} exercises per primary muscle group.` : '';
+    const setsText = d.setsPerExercise && d.setsPerExercise !== 'auto' ? `Use ${d.setsPerExercise} sets per exercise.` : '';
+    const restText = d.restSeconds && d.restSeconds !== 'auto' ? `Rest ${d.restSeconds} seconds between sets.` : '';
+    const bodyweightText = d.includeBodyweight ? 'You may include bodyweight movements where appropriate.' : 'Prefer equipment-based movements over bodyweight.';
+    const focusText = d.focusedMuscle && d.focusedMuscle !== 'none' ? `Prioritize exercises that emphasize the ${d.focusedMuscle} today.` : '';
     
     return `Create a concise ${difficulty} level workout plan for a ${workoutType} day focusing on ${workoutFocus}.
 
@@ -853,6 +931,8 @@ Please provide a CLEAN, ORGANIZED workout with:
 4. A short cool-down (2-3 stretches)
 
 ${exerciseDetail}
+
+${[muscleExercisesText, setsText, restText, bodyweightText, focusText].filter(Boolean).join(' ')}
 
 Format as a simple list with clear headings. Keep descriptions brief and actionable. No long paragraphs or excessive explanations.`;
 }
