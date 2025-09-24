@@ -1010,3 +1010,198 @@ input[type="password"] {
     transform: none;
   }
 }
+
+/* --- Dark theme refresh (sleek, mostly-black, reduced outlines) --- */
+:root {
+  --bg-0: #0b0b0f;            /* page */
+  --bg-1: #0f1117;            /* surface */
+  --bg-2: #141827;            /* elevated */
+  --text-0: #e5e7eb;          /* primary text */
+  --text-1: #9aa3b2;          /* secondary text */
+  --accent-1: #6366f1;        /* indigo */
+  --accent-2: #06b6d4;        /* cyan */
+  --accent: #7c83ff;          /* fallback */
+  --card-outline: rgba(255, 255, 255, 0.06);
+  --muted-outline: rgba(255, 255, 255, 0.04);
+  --focus-glow: 0 0 0 6px rgba(99, 102, 241, 0.08);
+  --elev-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --elev-shadow-2: 0 20px 60px rgba(0, 0, 0, 0.55);
+  --grad: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+}
+
+/* Background and typography */
+body {
+  background: radial-gradient(1200px 600px at 10% -10%, rgba(99, 102, 241, 0.08), transparent 50%),
+              radial-gradient(800px 400px at 100% 0%, rgba(6, 182, 212, 0.06), transparent 35%),
+              linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%) !important;
+  color: var(--text-0) !important;
+  color-scheme: dark;
+}
+
+.container { padding: 24px; }
+
+/* Header */
+.header { color: var(--text-0) !important; }
+.logo {
+  background: var(--grad) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: none !important;
+}
+.tagline { color: var(--text-1) !important; opacity: 0.9; }
+.user-info {
+  background: rgba(15, 17, 23, 0.85) !important;
+  border: none !important;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+}
+
+/* Sections/cards */
+.section {
+  background: rgba(20, 24, 39, 0.72) !important;
+  border: 1px solid var(--card-outline) !important;
+  box-shadow: var(--elev-shadow) !important;
+}
+.section:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--elev-shadow-2) !important;
+  border-color: var(--card-outline) !important;
+}
+.section h2 { color: var(--text-0) !important; }
+
+/* Forms */
+label { color: var(--text-1) !important; }
+input, select {
+  background: rgba(18, 20, 30, 0.9) !important;
+  border: 1px solid var(--muted-outline) !important;
+  color: var(--text-0) !important;
+}
+input:focus, select:focus {
+  border-color: transparent !important;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.35), var(--focus-glow) !important;
+  background: rgba(18, 20, 30, 1) !important;
+}
+input::placeholder { color: #697387 !important; }
+
+/* Buttons */
+.btn { border-radius: 12px !important; }
+.btn-primary {
+  background: var(--grad) !important;
+  border: none !important;
+  box-shadow: 0 10px 24px rgba(6, 182, 212, 0.15), 0 6px 16px rgba(99, 102, 241, 0.18);
+}
+.btn-primary:hover { transform: translateY(-2px); }
+.btn-secondary {
+  background: rgba(17, 24, 39, 0.9) !important;
+  color: var(--text-0) !important;
+  border: none !important;
+  box-shadow: inset 0 0 0 1px var(--muted-outline);
+}
+.btn-secondary:hover {
+  background: rgba(17, 24, 39, 1) !important;
+  box-shadow: inset 0 0 0 1px var(--card-outline);
+}
+
+/* Machines list */
+.machine-item {
+  background: rgba(18, 20, 30, 0.7) !important;
+  border: 1px solid var(--muted-outline) !important;
+}
+.machine-item:hover { border-color: var(--card-outline) !important; }
+
+/* Current day */
+.current-day {
+  background: rgba(18, 20, 30, 0.7) !important;
+  border: 1px solid var(--muted-outline) !important;
+}
+.current-day p { color: var(--text-1) !important; }
+#day-name, #workout-focus { color: #9aa8ff !important; }
+
+/* Workout display */
+.workout-content {
+  background: rgba(18, 20, 30, 0.72) !important;
+  border: 1px solid var(--muted-outline) !important;
+  border-left: none !important;
+}
+.workout-content h3 {
+  color: #a7b4ff !important;
+  border: none !important;
+}
+.workout-section { border-left: none !important; background: rgba(99,102,241,0.08) !important; }
+.exercise-item { border-left: none !important; background: rgba(255,255,255,0.03) !important; }
+.sets-reps { background: rgba(72, 187, 120, 0.18) !important; }
+
+/* Difficulty selector */
+.difficulty-selector { gap: 12px !important; }
+.difficulty-btn {
+  background: rgba(18, 20, 30, 0.8) !important;
+  border: 1px solid var(--muted-outline) !important;
+  color: var(--text-1) !important;
+}
+.difficulty-btn:hover { border-color: var(--card-outline) !important; }
+.difficulty-btn.active {
+  background: rgba(99, 102, 241, 0.16) !important;
+  border-color: rgba(99, 102, 241, 0.5) !important;
+  color: #b9c2ff !important;
+}
+.difficulty-beginner.active { background: rgba(72, 187, 120, 0.16) !important; }
+.difficulty-intermediate.active { background: rgba(237, 137, 54, 0.16) !important; }
+.difficulty-advanced.active { background: rgba(229, 62, 62, 0.16) !important; }
+
+/* Auth */
+.auth-container {
+  background: rgba(15, 17, 23, 0.8) !important;
+  border: 1px solid var(--card-outline) !important;
+  box-shadow: var(--elev-shadow-2) !important;
+}
+.auth-tabs { background: rgba(18, 20, 30, 0.8) !important; }
+.auth-tab { color: var(--text-1) !important; }
+.auth-tab.active {
+  background: var(--grad) !important;
+  color: #fff !important;
+  box-shadow: 0 12px 30px rgba(6, 182, 212, 0.18), 0 8px 18px rgba(99, 102, 241, 0.22) !important;
+}
+.demo-note { background: rgba(18, 20, 30, 0.6) !important; border-color: var(--muted-outline) !important; color: var(--text-1) !important; }
+
+/* Stats */
+.stat-card { background: rgba(18, 20, 30, 0.7) !important; border: 1px solid var(--muted-outline) !important; }
+.stat-number { color: #9aa8ff !important; }
+.stat-label { color: var(--text-1) !important; }
+
+/* Day override */
+.day-override { background: rgba(18, 20, 30, 0.6) !important; border: 1px solid var(--muted-outline) !important; }
+
+/* Spinner */
+.spinner { border-color: var(--muted-outline) !important; border-top-color: var(--accent-1) !important; }
+
+/* Scrollbars (WebKit) */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 10px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.12); }
+/* Scrollbars (Firefox) */
+* { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.12) transparent; }
+
+/* API status badges */
+.api-status {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: var(--text-0) !important;
+  border: 1px solid var(--muted-outline) !important;
+}
+.api-status.success { background: rgba(34, 197, 94, 0.12) !important; color: #86efac !important; }
+.api-status.error { background: rgba(239, 68, 68, 0.12) !important; color: #fca5a5 !important; }
+
+/* Danger button */
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  border: none !important;
+}
+.btn-danger:hover { filter: brightness(1.05); }
+
+/* Timer */
+.workout-timer {
+  background: rgba(99, 102, 241, 0.08) !important;
+  border: 1px solid var(--muted-outline) !important;
+}
+.timer-display { color: #b9c2ff !important; }
+
