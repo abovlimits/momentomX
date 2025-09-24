@@ -10,7 +10,7 @@ class DatabaseManager {
             user: process.env.DB_USER || process.env.MYSQLUSER || 'root',
             password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || 'UkYijJCKeMSStzybmiwmBzUDoGJWxDOs',
             port: process.env.DB_PORT || process.env.MYSQLPORT || 13816,
-            database: process.env.DB_NAME || process.env.MYSQLDATABASE || 'momentumx_db',
+            database: process.env.DB_NAME || process.env.MYSQLDATABASE || 'railway',
             multipleStatements: true,
             ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
         };
