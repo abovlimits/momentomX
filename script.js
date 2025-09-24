@@ -968,10 +968,27 @@ async function callGeminiAPI(prompt) {
 
 // Display generated workout
 function displayWorkout(workoutText, workoutType) {
+    const dateStr = new Date().toLocaleDateString();
+    const meta = {
+        workoutType,
+        dateStr,
+        difficulty: appState.currentUser?.data?.difficulty || 'intermediate',
+        splitType: appState.currentUser?.data?.splitType || 'upper-lower',
+        restSeconds: appState.currentUser?.data?.restSeconds || 'auto',
+        repsStyle: appState.currentUser?.data?.repsStyle || 'auto'
+    };
+
+    // Try structured parse first
+    const blocks = parseWorkoutText(workoutText);
+    const hasStructure = blocks.reduce((n, b) => n + (b.items?.length || 0), 0) >= 3 || blocks.length >= 2;
+    const inner = hasStructure ? buildWorkoutHTML(blocks, meta) : `
+        <h3>${workoutType} Workout - ${dateStr}</h3>
+        <div class="workout-text">${formatWorkoutText(workoutText)}</div>
+    `;
+
     elements.workoutDisplay.innerHTML = `
         <div class="workout-content">
-            <h3>${workoutType} Workout - ${new Date().toLocaleDateString()}</h3>
-            <div class="workout-text">${formatWorkoutText(workoutText)}</div>
+            ${inner}
         </div>
     `;
 }
@@ -1013,6 +1030,165 @@ function formatWorkoutText(text) {
     formattedText = formattedText.replace(/(<div class="workout-section">.*?)(?=<div class="workout-section">|$)/gs, '$1</div>');
     
     return `<div class="formatted-workout">${formattedText}</div>`;
+}
+
+// --- Structured workout rendering ---
+function parseWorkoutText(text) {
+    const lines = (text || '').split(/\r?\n/).map(l => l.trim()).filter(l => l.length);
+    const blocks = [];
+    let current = null;
+
+    const sectionRegex = /^(?:(?:\d+\.)|[-*•])?\s*(warm\s*-?\s*up|warmup|main(?:\s*(?:workout|lifts))?|cool\s*-?\s*down|cooldown|finisher|accessor(?:y|ies)|stretch(?:es)?)/i;
+    const bulletRegex = /^[-*•]\s*(.+)$/;
+
+    function startBlock(title) {
+        const t = normalizeTitle(title);
+        current = { title: t, items: [] };
+        blocks.push(current);
+    }
+    function normalizeTitle(raw) {
+        const r = (raw || '').toLowerCase();
+        if (r.includes('warm')) return 'Warm-up';
+        if (r.includes('cool')) return 'Cool-down';
+        if (r.includes('finish')) return 'Finisher';
+        if (r.includes('accessor')) return 'Accessories';
+        if (r.includes('stretch')) return 'Stretches';
+        if (r.includes('main')) return 'Main';
+        return raw.replace(/\*|#/g, '').trim().replace(/\b\w/g, c => c.toUpperCase()) || 'Workout';
+    }
+
+    for (let raw of lines) {
+        // Bold headings like **Warm Up**
+        const boldMatch = raw.match(/^\*\*(.+)\*\*$/);
+        if (boldMatch && sectionRegex.test(boldMatch[1])) {
+            startBlock(boldMatch[1]);
+            continue;
+        }
+
+        // Numeric or keyword section
+        const secMatch = raw.match(sectionRegex);
+        if (secMatch && (raw.endsWith(':') || raw.endsWith('.') || raw.toLowerCase() === secMatch[0].toLowerCase())) {
+            startBlock(secMatch[1]);
+            continue;
+        }
+
+        // Exercise bullet or plain line with sets x reps pattern
+        let line = raw;
+        const bullet = raw.match(bulletRegex);
+        if (bullet) line = bullet[1];
+
+        const item = parseExerciseLine(line);
+        if (item) {
+            if (!current) startBlock('Workout');
+            current.items.push(item);
+            continue;
+        }
+        // Otherwise, treat as note under current block
+        if (!current) startBlock('Workout');
+        if (current && line) {
+            current.items.push({ name: line });
+        }
+    }
+    return blocks.length ? blocks : [{ title: 'Workout', items: [] }];
+}
+
+function parseExerciseLine(line) {
+    if (!line) return null;
+    // Extract parentheses notes first
+    let notes = '';
+    const paren = line.match(/\(([^)]+)\)/);
+    if (paren) {
+        notes = paren[1];
+        line = line.replace(paren[0], '').trim();
+    }
+    // Sets x reps pattern
+    const sr = line.match(/(\d+)\s*sets?\s*[x×]\s*(\d+(?:-\d+)?)\s*reps?/i);
+    // Alternative compact like 3x10 or 4×8-10
+    const compact = line.match(/(\d+)\s*[x×]\s*(\d+(?:-\d+)?)(?!\S)/i);
+    let setsReps = '';
+    if (sr) setsReps = `${sr[1]}x${sr[2]}`;
+    else if (compact) setsReps = `${compact[1]}x${compact[2]}`;
+
+    // Rest detection
+    const rest = (() => {
+        const m = line.match(/rest\s*[:\-]?\s*(\d+)\s*(sec|secs|seconds|s|min|mins|minutes|m)/i);
+        if (!m) return '';
+        const n = parseInt(m[1], 10);
+        const unit = m[2].toLowerCase();
+        const secs = unit.startsWith('m') ? `${n}m` : `${n}s`;
+        return secs;
+    })();
+
+    // Bodyweight tag
+    const bw = /\b(bodyweight|bw)\b/i.test(line);
+    // Tempo
+    const tempoMatch = line.match(/tempo\s*[:\-]?\s*([0-9xX\-]+)/i);
+    const tempo = tempoMatch ? tempoMatch[1] : '';
+
+    // Name: remove obvious decorators (after hyphen if preceding details)
+    let name = line
+        .replace(/\brest\b.*$/i, '')
+        .replace(/\btempo\b.*$/i, '')
+        .replace(/\b\d+\s*sets?\s*[x×]\s*\d+(?:-\d+)?\s*reps?\b/i, '')
+        .replace(/\b\d+\s*[x×]\s*\d+(?:-\d+)?\b/i, '')
+        .replace(/[-–—]\s*$/, '')
+        .trim();
+
+    // If nothing meaningful left, bail
+    if (!name && !setsReps && !rest && !notes) return null;
+
+    const tags = [];
+    if (setsReps) tags.push({ type: 'sets', text: setsReps.replace(/-/g, '–') });
+    if (rest) tags.push({ type: 'rest', text: rest });
+    if (tempo) tags.push({ type: 'tempo', text: tempo });
+    if (bw) tags.push({ type: 'bw', text: 'BW' });
+
+    return { name: name || undefined, setsReps, rest, tempo, tags, notes };
+}
+
+function buildWorkoutHTML(blocks, meta) {
+    const chips = [];
+    chips.push(`<span class="meta-chip"><em>Type</em>${escapeHtml(meta.workoutType)}</span>`);
+    chips.push(`<span class="meta-chip"><em>Difficulty</em>${escapeHtml(meta.difficulty)}</span>`);
+    chips.push(`<span class="meta-chip"><em>Split</em>${escapeHtml(meta.splitType)}</span>`);
+    if (meta.repsStyle && meta.repsStyle !== 'auto') chips.push(`<span class="meta-chip"><em>Reps</em>${escapeHtml(meta.repsStyle)}</span>`);
+    if (meta.restSeconds && meta.restSeconds !== 'auto') chips.push(`<span class="meta-chip"><em>Rest</em>${escapeHtml(String(meta.restSeconds))}s</span>`);
+
+    const blockHtml = blocks.map(b => {
+        const rows = (b.items || []).map(it => {
+            // If bare note row
+            if (!it.name && (it.notes || '').length) {
+                return `<div class="row-notes">${escapeHtml(it.notes)}</div>`;
+            }
+            const tags = (it.tags || []).map(t => `<span class="tag tag--${t.type}">${escapeHtml(t.text)}</span>`).join('');
+            const notes = it.notes ? `<div class="row-notes">${escapeHtml(it.notes)}</div>` : '';
+            return `
+                <div class="workout-row">
+                    <div class="row-name">${escapeHtml(it.name || '')}</div>
+                    <div class="row-tags">${tags}</div>
+                </div>
+                ${notes}
+            `;
+        }).join('');
+        return `
+            <div class="workout-block">
+                <div class="block-title">${escapeHtml(b.title)}</div>
+                <div class="workout-rows">${rows}</div>
+            </div>
+        `;
+    }).join('');
+
+    return `
+        <div class="workout-header">
+            <h3>${escapeHtml(meta.workoutType)} Workout - ${escapeHtml(meta.dateStr)}</h3>
+            <div class="workout-meta">${chips.join('')}</div>
+        </div>
+        ${blockHtml}
+    `;
+}
+
+function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
 }
 
 // Export user data

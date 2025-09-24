@@ -352,6 +352,64 @@ input[type="password"] {
   line-height: 1.6;
 }
 
+/* Structured workout layout */
+.workout-content .workout-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.workout-content .workout-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+.workout-content .meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--text-0);
+  background: rgba(18, 20, 30, 0.6);
+  box-shadow: inset 0 0 0 1px var(--muted-outline);
+}
+.workout-content .meta-chip em { font-style: normal; color: var(--text-1); }
+
+.workout-block {
+  background: rgba(18, 20, 30, 0.5);
+  border: 1px solid var(--muted-outline);
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 12px;
+}
+.workout-block .block-title {
+  color: #a7b4ff;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.workout-rows { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.workout-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+}
+.workout-row .row-name { color: var(--text-0); font-weight: 500; }
+.workout-row .row-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.workout-row .tag { padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.tag--sets { color: #86efac; background: rgba(34,197,94,0.15); }
+.tag--rest { color: #60a5fa; background: rgba(37,99,235,0.15); }
+.tag--tempo { color: #fbbf24; background: rgba(245,158,11,0.18); }
+.tag--bw { color: #f472b6; background: rgba(236,72,153,0.15); }
+.row-notes { color: var(--text-1); font-size: 12px; padding: 0 12px; margin-top: -4px; }
+
+@media (min-width: 768px) {
+  .workout-rows { grid-template-columns: 1fr; }
+}
+
 .workout-section {
   margin: 15px 0;
   padding: 12px;
