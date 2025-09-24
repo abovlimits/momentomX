@@ -1,2 +1,3 @@
 [deploy]
 startCommand = "node server/server.js"
+healthcheckPath = "/health"
