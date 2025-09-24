@@ -47,6 +47,24 @@ npm install
 npm run dev
 ```
 
+## Data Persistence
+- The app now persists users, preferences, machines, and workouts to MySQL via the backend API.
+- The previous auto-download of a `momentumx_users_database.json` file has been removed.
+- You can still export your personal data manually using the Export Data button in the UI; this creates a JSON file for your own backup.
+
+### API Overview
+- POST `/api/auth/register` — create user; returns JWT
+- POST `/api/auth/login` — authenticate; returns JWT
+- GET `/api/user/profile` — profile + aggregated stats/preferences
+- PUT `/api/user/preferences` — update split/difficulty/day override
+- GET `/api/user/machines` — list machines
+- POST `/api/user/machines` — add machine
+- DELETE `/api/user/machines/:id` — remove machine
+- POST `/api/workouts` — save generated workout and update stats
+- GET `/api/workouts` — list workouts
+
+Requests must include `Authorization: Bearer <token>` after logging in/registering.
+
 ## Project Structure
 - `/server` - Backend Node.js application
 - `/server/server.js` - Main server file

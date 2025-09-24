@@ -1,11 +1,46 @@
 // Hardcoded API key (provided by user)
 const GEMINI_API_KEY = 'AIzaSyAtWkG0LoxtA9lrtvqenkwuxCyzhzvkHzc';
 
+// Simple API client for backend integration
+const apiClient = {
+    token: localStorage.getItem('mx_auth_token') || null,
+    setToken(t) {
+        this.token = t;
+        if (t) localStorage.setItem('mx_auth_token', t);
+        else localStorage.removeItem('mx_auth_token');
+    },
+    headers(json = true) {
+        const h = {};
+        if (json) h['Content-Type'] = 'application/json';
+        if (this.token) h['Authorization'] = `Bearer ${this.token}`;
+        return h;
+    },
+    async get(path) {
+        const res = await fetch(`/api${path}`, { headers: this.headers(false) });
+        if (!res.ok) throw new Error((await res.json()).error || 'Request failed');
+        return res.json();
+    },
+    async post(path, body) {
+        const res = await fetch(`/api${path}`, { method: 'POST', headers: this.headers(true), body: JSON.stringify(body) });
+        if (!res.ok) throw new Error((await res.json()).error || 'Request failed');
+        return res.json();
+    },
+    async put(path, body) {
+        const res = await fetch(`/api${path}`, { method: 'PUT', headers: this.headers(true), body: JSON.stringify(body) });
+        if (!res.ok) throw new Error((await res.json()).error || 'Request failed');
+        return res.json();
+    },
+    async del(path) {
+        const res = await fetch(`/api${path}`, { method: 'DELETE', headers: this.headers(false) });
+        if (!res.ok) throw new Error((await res.json()).error || 'Request failed');
+        return res.json();
+    }
+};
+
 // User Authentication & Data Management
 class UserManager {
     constructor() {
         this.currentUser = null;
-        this.users = JSON.parse(localStorage.getItem('momentumx_users')) || {};
         this.demoUser = {
             username: 'demo',
             password: 'demo123',
@@ -14,34 +49,71 @@ class UserManager {
         };
     }
 
+    async ensureUserProfileLoaded() {
+        if (this.currentUser) return this.currentUser;
+        const savedUser = localStorage.getItem('momentumx_currentUser');
+        if (savedUser) {
+            this.currentUser = JSON.parse(savedUser);
+            return this.currentUser;
+        }
+        if (!apiClient.token) return null;
+        try {
+            const profile = await apiClient.get('/user/profile');
+            const machines = await apiClient.get('/user/machines');
+            this.currentUser = {
+                id: profile.id,
+                username: profile.username,
+                email: profile.email,
+                joinDate: profile.join_date?.split('T')[0] || new Date().toISOString().split('T')[0],
+                data: {
+                    machines: (machines || []).map(m => m.machine_name),
+                    splitType: profile.split_type || 'upper-lower',
+                    difficulty: profile.difficulty_level || 'intermediate',
+                    dayOverride: profile.day_override || 'auto',
+                    workoutsGenerated: profile.total_workouts || 0,
+                    currentStreak: profile.current_streak_days || 0,
+                    lastWorkoutDate: profile.last_workout_date || null,
+                    totalWorkoutTime: profile.total_workout_time_minutes || 0
+                }
+            };
+            localStorage.setItem('momentumx_currentUser', JSON.stringify(this.currentUser));
+            return this.currentUser;
+        } catch (e) {
+            console.warn('Failed to load profile from server:', e.message);
+            return null;
+        }
+    }
+
     register(username, email, password, confirmPassword) {
-        if (password !== confirmPassword) {
-            throw new Error('Passwords do not match');
-        }
+        if (password !== confirmPassword) throw new Error('Passwords do not match');
+        if (username.length < 3) throw new Error('Username must be at least 3 characters');
+        if (password.length < 6) throw new Error('Password must be at least 6 characters');
 
-        if (this.users[username]) {
-            throw new Error('Username already exists');
-        }
-
-        if (username.length < 3) {
-            throw new Error('Username must be at least 3 characters');
-        }
-
-        if (password.length < 6) {
-            throw new Error('Password must be at least 6 characters');
-        }
-
-        const user = {
-            username,
-            email,
-            password, // In a real app, this would be hashed
-            joinDate: new Date().toISOString().split('T')[0],
-            data: this.getDefaultUserData()
-        };
-
-        this.users[username] = user;
-        this.saveUsersToFile();
-        return user;
+        // Register via backend
+        return apiClient.post('/auth/register', { username, email, password }).then(async (res) => {
+            apiClient.setToken(res.token);
+            // hydrate current user from profile endpoint
+            const profile = await apiClient.get('/user/profile');
+            const machines = await apiClient.get('/user/machines');
+            this.currentUser = {
+                id: profile.id,
+                username: profile.username,
+                email: profile.email,
+                joinDate: profile.join_date?.split('T')[0] || new Date().toISOString().split('T')[0],
+                data: {
+                    machines: (machines || []).map(m => m.machine_name),
+                    splitType: profile.split_type || 'upper-lower',
+                    difficulty: profile.difficulty_level || 'intermediate',
+                    dayOverride: profile.day_override || 'auto',
+                    workoutsGenerated: profile.total_workouts || 0,
+                    currentStreak: profile.current_streak_days || 0,
+                    lastWorkoutDate: profile.last_workout_date || null,
+                    totalWorkoutTime: profile.total_workout_time_minutes || 0
+                }
+            };
+            localStorage.setItem('momentumx_currentUser', JSON.stringify(this.currentUser));
+            return this.currentUser;
+        });
     }
 
     login(username, password) {
@@ -55,77 +127,98 @@ class UserManager {
             localStorage.setItem('momentumx_currentUser', JSON.stringify(demoUserData));
             return demoUserData;
         }
-
-        const user = this.users[username];
-        if (!user || user.password !== password) {
-            throw new Error('Invalid username or password');
-        }
-
-        this.currentUser = user;
-        localStorage.setItem('momentumx_currentUser', JSON.stringify(user));
-        return user;
+        return apiClient.post('/auth/login', { username, password }).then(async (res) => {
+            apiClient.setToken(res.token);
+            const profile = await apiClient.get('/user/profile');
+            const machines = await apiClient.get('/user/machines');
+            this.currentUser = {
+                id: profile.id,
+                username: profile.username,
+                email: profile.email,
+                joinDate: profile.join_date?.split('T')[0] || new Date().toISOString().split('T')[0],
+                data: {
+                    machines: (machines || []).map(m => m.machine_name),
+                    splitType: profile.split_type || 'upper-lower',
+                    difficulty: profile.difficulty_level || 'intermediate',
+                    dayOverride: profile.day_override || 'auto',
+                    workoutsGenerated: profile.total_workouts || 0,
+                    currentStreak: profile.current_streak_days || 0,
+                    lastWorkoutDate: profile.last_workout_date || null,
+                    totalWorkoutTime: profile.total_workout_time_minutes || 0
+                }
+            };
+            localStorage.setItem('momentumx_currentUser', JSON.stringify(this.currentUser));
+            return this.currentUser;
+        });
     }
 
     logout() {
         this.currentUser = null;
         localStorage.removeItem('momentumx_currentUser');
+        apiClient.setToken(null);
     }
 
     getCurrentUser() {
-        if (!this.currentUser) {
-            const savedUser = localStorage.getItem('momentumx_currentUser');
-            if (savedUser) {
-                this.currentUser = JSON.parse(savedUser);
-            }
+        if (this.currentUser) return this.currentUser;
+        const savedUser = localStorage.getItem('momentumx_currentUser');
+        if (savedUser) {
+            this.currentUser = JSON.parse(savedUser);
+            return this.currentUser;
         }
-        return this.currentUser;
+        return null;
     }
 
     updateUserData(data) {
         if (!this.currentUser) return;
+        // Always update local cache
+        this.currentUser.data = { ...this.currentUser.data, ...data };
+        localStorage.setItem('momentumx_currentUser', JSON.stringify(this.currentUser));
 
-        if (this.currentUser.username === 'demo') {
-            // For demo user, just save to localStorage
-            this.currentUser.data = { ...this.currentUser.data, ...data };
-            localStorage.setItem('momentumx_currentUser', JSON.stringify(this.currentUser));
-        } else {
-            // For registered users, update in users database
-            this.currentUser.data = { ...this.currentUser.data, ...data };
-            this.users[this.currentUser.username] = this.currentUser;
-            this.saveUsersToFile();
-            localStorage.setItem('momentumx_currentUser', JSON.stringify(this.currentUser));
-        }
+        // Demo user: local only
+        if (this.currentUser.username === 'demo') return;
+
+        // Map preference keys to backend
+        const prefPayload = {};
+        if (Object.prototype.hasOwnProperty.call(data, 'splitType')) prefPayload.split_type = data.splitType;
+        if (Object.prototype.hasOwnProperty.call(data, 'difficulty')) prefPayload.difficulty_level = data.difficulty;
+        if (Object.prototype.hasOwnProperty.call(data, 'dayOverride')) prefPayload.day_override = data.dayOverride;
+
+        // Stats mapping
+        const statsPayload = {};
+        if (Object.prototype.hasOwnProperty.call(data, 'currentStreak')) statsPayload.current_streak_days = data.currentStreak;
+        if (Object.prototype.hasOwnProperty.call(data, 'lastWorkoutDate')) statsPayload.last_workout_date = data.lastWorkoutDate;
+
+        // Fire-and-forget updates to backend
+        (async () => {
+            try {
+                if (Object.keys(prefPayload).length) await apiClient.put('/user/preferences', prefPayload);
+                if (Object.keys(statsPayload).length) await apiClient.put('/user/stats', statsPayload);
+                // Machines syncing if provided as full list
+                if (Object.prototype.hasOwnProperty.call(data, 'machines')) {
+                    const serverMachines = await apiClient.get('/user/machines');
+                    const serverNames = new Set(serverMachines.map(m => m.machine_name));
+                    const desired = new Set(data.machines);
+                    // Add missing
+                    for (const name of desired) {
+                        if (!serverNames.has(name)) {
+                            await apiClient.post('/user/machines', { machine_name: name });
+                        }
+                    }
+                    // Remove extras
+                    for (const m of serverMachines) {
+                        if (!desired.has(m.machine_name)) {
+                            await apiClient.del(`/user/machines/${m.id}`);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to sync user data to server:', e.message);
+            }
+        })();
     }
 
     saveUsersToFile() {
-        try {
-            // Save to localStorage as backup
-            localStorage.setItem('momentumx_users', JSON.stringify(this.users));
-            
-            // Create and download JSON file
-            const dataStr = JSON.stringify({
-                users: this.users,
-                lastUpdated: new Date().toISOString()
-            }, null, 2);
-            
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            
-            // Create hidden download link
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'momentumx_users_database.json';
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error('Error saving users to file:', error);
-            // Fallback to localStorage only
-            localStorage.setItem('momentumx_users', JSON.stringify(this.users));
-        }
+        // No-op: previously downloaded a JSON file. Persisting to server now.
     }
 
     getDefaultUserData() {
@@ -270,7 +363,7 @@ function initElements() {
 }
 
 // Initialize the application
-function init() {
+async function init() {
     console.log('Initializing app...');
     
     // Initialize DOM elements first
@@ -282,9 +375,13 @@ function init() {
         userInfo: elements.userInfo
     });
     
-    const currentUser = userManager.getCurrentUser();
+    let currentUser = userManager.getCurrentUser();
     console.log('Current user from manager:', currentUser);
-    
+    // If token exists but no current user object, try loading from server
+    if (!currentUser && apiClient.token) {
+        currentUser = await userManager.ensureUserProfileLoaded();
+    }
+
     if (currentUser) {
         showMainApp(currentUser);
     } else {
@@ -393,7 +490,7 @@ function switchAuthTab(tab) {
     elements.registerForm.classList.toggle('hidden', tab !== 'register');
 }
 
-function handleLogin() {
+async function handleLogin() {
     console.log('handleLogin called');
     const username = document.getElementById('login-username').value.trim();
     const password = document.getElementById('login-password').value;
@@ -401,7 +498,7 @@ function handleLogin() {
     console.log('Login attempt:', username);
     
     try {
-        const user = userManager.login(username, password);
+        const user = await userManager.login(username, password);
         console.log('Login successful:', user);
         showMainApp(user);
         showNotification(`Welcome back, ${user.username}!`, 'success');
@@ -411,16 +508,15 @@ function handleLogin() {
     }
 }
 
-function handleRegister() {
+async function handleRegister() {
     const username = document.getElementById('register-username').value.trim();
     const email = document.getElementById('register-email').value.trim();
     const password = document.getElementById('register-password').value;
     const confirmPassword = document.getElementById('register-confirm-password').value;
     
     try {
-        const user = userManager.register(username, email, password, confirmPassword);
-        const loginUser = userManager.login(username, password);
-        showMainApp(loginUser);
+        const user = await userManager.register(username, email, password, confirmPassword);
+        showMainApp(user);
         showNotification(`Account created successfully! Welcome, ${user.username}!`, 'success');
     } catch (error) {
         showNotification(error.message, 'error');
@@ -477,7 +573,7 @@ function updateStats() {
 }
 
 // Add machine
-function addMachine() {
+async function addMachine() {
     const machineName = elements.machineInput.value.trim();
     const machines = getUserData('machines') || [];
     
@@ -487,6 +583,14 @@ function addMachine() {
         elements.machineInput.value = '';
         renderMachines();
         updateStats();
+        // Sync to backend
+        try {
+            if (appState.currentUser.username !== 'demo') {
+                await apiClient.post('/user/machines', { machine_name: machineName });
+            }
+        } catch (e) {
+            console.error('Failed to add machine on server:', e.message);
+        }
         showNotification(`${machineName} added!`, 'success');
     } else if (machines.includes(machineName)) {
         showNotification('Machine already exists!', 'error');
@@ -494,21 +598,22 @@ function addMachine() {
 }
 
 // Remove machine
-function removeMachine(machineName) {
+async function removeMachine(machineName) {
     const machines = getUserData('machines') || [];
     const updatedMachines = machines.filter(machine => machine !== machineName);
     saveUserData('machines', updatedMachines);
     renderMachines();
     updateStats();
-    showNotification(`${machineName} removed!`, 'success');
-}
-
-// Remove machine
-function removeMachine(machineName) {
-    appState.machines = appState.machines.filter(machine => machine !== machineName);
-    localStorage.setItem('machines', JSON.stringify(appState.machines));
-    renderMachines();
-    updateStats();
+    // Sync to backend
+    try {
+        if (appState.currentUser.username !== 'demo') {
+            const serverMachines = await apiClient.get('/user/machines');
+            const match = serverMachines.find(m => m.machine_name === machineName);
+            if (match) await apiClient.del(`/user/machines/${match.id}`);
+        }
+    } catch (e) {
+        console.error('Failed to remove machine on server:', e.message);
+    }
     showNotification(`${machineName} removed!`, 'success');
 }
 
@@ -598,6 +703,23 @@ async function generateWorkout() {
         const prompt = createWorkoutPrompt(workoutType, workoutFocus, data.difficulty, machines);
         const workout = await callGeminiAPI(prompt);
         displayWorkout(workout, workoutType);
+        // Persist workout to server (optional content text)
+        try {
+            if (appState.currentUser.username !== 'demo') {
+                const todayISO = new Date().toISOString().split('T')[0];
+                await apiClient.post('/workouts', {
+                    workout_type: workoutType,
+                    workout_date: todayISO,
+                    difficulty_level: data.difficulty,
+                    split_type: data.splitType,
+                    workout_content: workout,
+                    duration_minutes: null,
+                    calories_burned: null
+                });
+            }
+        } catch (e) {
+            console.warn('Failed to save workout on server:', e.message);
+        }
         
         // Update stats
         const newWorkoutCount = data.workoutsGenerated + 1;
@@ -619,7 +741,7 @@ async function generateWorkout() {
             newStreak = 1;
         }
         
-        saveUserData('workoutsGenerated', newWorkoutCount);
+    saveUserData('workoutsGenerated', newWorkoutCount);
         saveUserData('currentStreak', newStreak);
         saveUserData('lastWorkoutDate', today);
         
