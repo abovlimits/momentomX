@@ -6,10 +6,10 @@ class DatabaseManager {
     constructor() {
         this.connection = null;
         this.dbConfig = {
-            host: process.env.DB_HOST || 'localhost',
+            host: 'switchback.proxy.rlwy.net',
             user: process.env.DB_USER || 'root',
-            password: process.env.DB_PASSWORD || '',
-            port: process.env.DB_PORT || 3306,
+            password: process.env.DB_PASSWORD || 'UkYijJCKeMSStzybmiwmBzUDoGJWxDOs',
+            port: process.env.DB_PORT || 13816,
             multipleStatements: true
         };
     }
