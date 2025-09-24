@@ -1,0 +1,30 @@
+{
+  "name": "momentumx-app",
+  "version": "1.0.0",
+  "description": "MomentumX Full Stack Application",
+  "main": "server/server.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "install-server": "cd server && npm install"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql2": "^3.6.0",
+    "cors": "^2.8.5",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "dotenv": "^16.3.1",
+    "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["workout", "fitness", "ai", "mysql", "full-stack"],
+  "author": "MomentumX",
+  "license": "MIT"
+}
