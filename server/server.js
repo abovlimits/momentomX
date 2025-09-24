@@ -50,6 +50,15 @@ const authenticateToken = (req, res, next) => {
 
 // Routes
 
+// Serve static frontend from project root
+const rootPublicDir = path.join(__dirname, '..');
+app.use(express.static(rootPublicDir));
+
+// Root route
+app.get('/', (req, res) => {
+    res.sendFile(path.join(rootPublicDir, 'index.html'));
+});
+
 // Health check
 app.get('/health', (req, res) => {
     res.json({ 
@@ -368,7 +377,13 @@ app.use((error, req, res, next) => {
     res.status(500).json({ error: 'Internal server error' });
 });
 
-// 404 handler
+// SPA fallback for non-API routes
+app.get(/^\/(?!api\/).*$/, (req, res, next) => {
+    if (req.method !== 'GET') return next();
+    res.sendFile(path.join(rootPublicDir, 'index.html'));
+});
+
+// 404 handler for unknown API routes
 app.use((req, res) => {
     res.status(404).json({ error: 'Endpoint not found' });
 });
