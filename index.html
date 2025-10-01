@@ -114,128 +114,132 @@
                 </div>
             </section>
 
-            <!-- Split Configuration Section -->
-            <section class="section split-section">
-                <h2>📅 Workout Split & Day</h2>
-                <div class="form-group">
-                    <label for="split-type">Split Type:</label>
-                    <select id="split-type">
-                        <option value="upper-lower">Upper/Lower</option>
-                        <option value="push-pull-legs">Push/Pull/Legs</option>
-                        <option value="full-body">Full Body</option>
-                        <option value="bro-split">Bro Split (5-day)</option>
-                    </select>
-                </div>
-                
-                <!-- Difficulty Selector -->
-                <div class="form-group">
-                    <label>Workout Difficulty:</label>
-                    <div class="difficulty-selector">
-                        <button class="difficulty-btn difficulty-beginner" data-difficulty="beginner">🟢 Beginner</button>
-                        <button class="difficulty-btn difficulty-intermediate active" data-difficulty="intermediate">🟡 Intermediate</button>
-                        <button class="difficulty-btn difficulty-advanced" data-difficulty="advanced">🔴 Advanced</button>
-                    </div>
+            <!-- Settings Section (Organized + Out-of-the-ordinary) -->
+            <section class="section settings-section">
+                <h2>⚙️ Settings</h2>
+                <div class="settings-tabs" role="tablist" aria-label="Settings">
+                    <button class="settings-tab active" data-pane="settings-basics" role="tab" aria-selected="true">Basics</button>
+                    <button class="settings-tab" data-pane="settings-reps" role="tab" aria-selected="false">Reps & Volume</button>
+                    <button class="settings-tab" data-pane="settings-focus" role="tab" aria-selected="false">Focus</button>
                 </div>
 
-                <!-- Reps Range Selector -->
-                <div class="form-group">
-                    <label for="reps-style">Reps Range:</label>
-                    <div class="reps-selector" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                        <select id="reps-style">
-                            <option value="auto">Auto (by difficulty)</option>
-                            <option value="strength">Strength (3–5)</option>
-                            <option value="power">Power/Hypertrophy (6–8)</option>
-                            <option value="hypertrophy">Hypertrophy (8–12)</option>
-                            <option value="endurance">Endurance (12–15)</option>
-                            <option value="custom">Custom…</option>
+                <!-- Basics Pane -->
+                <div id="settings-basics" class="settings-pane active" role="tabpanel">
+                    <div class="form-group">
+                        <label for="split-type">Split Type</label>
+                        <select id="split-type">
+                            <option value="upper-lower">Upper/Lower</option>
+                            <option value="push-pull-legs">Push/Pull/Legs</option>
+                            <option value="full-body">Full Body</option>
+                            <option value="bro-split">Bro Split (5-day)</option>
                         </select>
-                        <div id="reps-custom" style="display:none; gap:8px; align-items:center;">
-                            <label for="reps-min" style="margin-left:6px;">Min:</label>
-                            <input type="number" id="reps-min" min="1" max="30" step="1" style="width:70px;">
-                            <label for="reps-max">Max:</label>
-                            <input type="number" id="reps-max" min="1" max="30" step="1" style="width:70px;">
+                    </div>
+                    <div class="form-group">
+                        <label>Workout Difficulty</label>
+                        <div class="difficulty-selector">
+                            <button class="difficulty-btn difficulty-beginner" data-difficulty="beginner">🟢 Beginner</button>
+                            <button class="difficulty-btn difficulty-intermediate active" data-difficulty="intermediate">🟡 Intermediate</button>
+                            <button class="difficulty-btn difficulty-advanced" data-difficulty="advanced">🔴 Advanced</button>
+                        </div>
+                    </div>
+                    <div class="current-day" id="current-day">
+                        <p>Today is: <span id="day-name"></span></p>
+                        <p>Workout focus: <span id="workout-focus"></span></p>
+                        <div class="day-override">
+                            <label for="day-override-select">Override today's focus</label>
+                            <select id="day-override-select">
+                                <option value="auto">Auto (Follow Split)</option>
+                                <option value="upper">Upper Body</option>
+                                <option value="lower">Lower Body</option>
+                                <option value="push">Push (Chest/Shoulders/Triceps)</option>
+                                <option value="pull">Pull (Back/Biceps)</option>
+                                <option value="legs">Legs</option>
+                                <option value="chest">Chest Day</option>
+                                <option value="back">Back Day</option>
+                                <option value="shoulders">Shoulders</option>
+                                <option value="arms">Arms</option>
+                                <option value="full-body">Full Body</option>
+                            </select>
+                            <button id="apply-override" class="btn btn-secondary">Apply</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Exercises per Muscle Group -->
-                <div class="form-group">
-                    <label for="exercises-per-muscle">Exercises per target muscle group:</label>
-                    <select id="exercises-per-muscle">
-                        <option value="auto">Auto (by difficulty)</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                    </select>
-                </div>
-
-                <!-- Sets and Rest -->
-                <div class="form-group" style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
-                    <div>
-                        <label for="sets-per-exercise">Sets per exercise:</label>
-                        <select id="sets-per-exercise">
-                            <option value="auto">Auto</option>
+                <!-- Reps & Volume Pane -->
+                <div id="settings-reps" class="settings-pane" role="tabpanel" hidden>
+                    <div class="form-group">
+                        <label for="reps-style">Reps Range</label>
+                        <div class="reps-selector" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                            <select id="reps-style">
+                                <option value="auto">Auto (by difficulty)</option>
+                                <option value="strength">Strength (3–5)</option>
+                                <option value="power">Power/Hypertrophy (6–8)</option>
+                                <option value="hypertrophy">Hypertrophy (8–12)</option>
+                                <option value="endurance">Endurance (12–15)</option>
+                                <option value="custom">Custom…</option>
+                            </select>
+                            <div id="reps-custom" style="display:none; gap:8px; align-items:center;">
+                                <label for="reps-min" style="margin-left:6px;">Min</label>
+                                <input type="number" id="reps-min" min="1" max="30" step="1" style="width:70px;">
+                                <label for="reps-max">Max</label>
+                                <input type="number" id="reps-max" min="1" max="30" step="1" style="width:70px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="exercises-per-muscle">Exercises per target muscle group</label>
+                        <select id="exercises-per-muscle">
+                            <option value="auto">Auto (by difficulty)</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
                             <option value="4">4</option>
                             <option value="5">5</option>
                         </select>
                     </div>
-                    <div>
-                        <label for="rest-seconds">Rest between sets (sec):</label>
-                        <select id="rest-seconds">
-                            <option value="auto">Auto</option>
-                            <option value="45">45</option>
-                            <option value="60">60</option>
-                            <option value="90">90</option>
-                            <option value="120">120</option>
-                        </select>
+                    <div class="form-group" style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+                        <div>
+                            <label for="sets-per-exercise">Sets per exercise</label>
+                            <select id="sets-per-exercise">
+                                <option value="auto">Auto</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="rest-seconds">Rest between sets (sec)</label>
+                            <select id="rest-seconds">
+                                <option value="auto">Auto</option>
+                                <option value="45">45</option>
+                                <option value="60">60</option>
+                                <option value="90">90</option>
+                                <option value="120">120</option>
+                            </select>
+                        </div>
                     </div>
-                    <div style="display:flex; align-items:center; gap:8px;">
+                </div>
+
+                <!-- Focus Pane -->
+                <div id="settings-focus" class="settings-pane" role="tabpanel" hidden>
+                    <div class="form-group" style="display:flex; align-items:center; gap:8px;">
                         <input type="checkbox" id="include-bodyweight">
                         <label for="include-bodyweight">Include bodyweight exercises</label>
                     </div>
-                </div>
-
-                <!-- Focused Muscle (optional) -->
-                <div class="form-group">
-                    <label for="focused-muscle">Focused muscle (optional):</label>
-                    <select id="focused-muscle">
-                        <option value="none">None</option>
-                        <option value="chest">Chest</option>
-                        <option value="back">Back</option>
-                        <option value="shoulders">Shoulders</option>
-                        <option value="arms">Arms (biceps/triceps)</option>
-                        <option value="glutes">Glutes</option>
-                        <option value="quads">Quads</option>
-                        <option value="hamstrings">Hamstrings</option>
-                        <option value="calves">Calves</option>
-                        <option value="core">Core/Abs</option>
-                    </select>
-                </div>
-
-                <div class="current-day" id="current-day">
-                    <p>Today is: <span id="day-name"></span></p>
-                    <p>Workout focus: <span id="workout-focus"></span></p>
-                    
-                    <!-- Day Override Controls -->
-                    <div class="day-override">
-                        <label for="day-override-select">Override today's focus:</label>
-                        <select id="day-override-select">
-                            <option value="auto">Auto (Follow Split)</option>
-                            <option value="upper">Upper Body</option>
-                            <option value="lower">Lower Body</option>
-                            <option value="push">Push (Chest/Shoulders/Triceps)</option>
-                            <option value="pull">Pull (Back/Biceps)</option>
-                            <option value="legs">Legs</option>
-                            <option value="chest">Chest Day</option>
-                            <option value="back">Back Day</option>
+                    <div class="form-group">
+                        <label for="focused-muscle">Focused muscle (optional)</label>
+                        <select id="focused-muscle">
+                            <option value="none">None</option>
+                            <option value="chest">Chest</option>
+                            <option value="back">Back</option>
                             <option value="shoulders">Shoulders</option>
-                            <option value="arms">Arms</option>
-                            <option value="full-body">Full Body</option>
+                            <option value="arms">Arms (biceps/triceps)</option>
+                            <option value="glutes">Glutes</option>
+                            <option value="quads">Quads</option>
+                            <option value="hamstrings">Hamstrings</option>
+                            <option value="calves">Calves</option>
+                            <option value="core">Core/Abs</option>
                         </select>
-                        <button id="apply-override" class="btn btn-secondary">Apply</button>
                     </div>
                 </div>
             </section>
@@ -257,6 +261,23 @@
         </main>
     </div>
 
-    <script src="script.js"></script>
+        <script src="script.js"></script>
+        <script>
+            // Lightweight tab switcher for Settings
+            document.addEventListener('DOMContentLoaded', () => {
+                const tabs = Array.from(document.querySelectorAll('.settings-tab'));
+                const panes = Array.from(document.querySelectorAll('.settings-pane'));
+                if (!tabs.length) return;
+                function activate(id) {
+                    tabs.forEach(t => t.classList.toggle('active', t.dataset.pane === id));
+                    panes.forEach(p => {
+                        const is = p.id === id;
+                        p.classList.toggle('active', is);
+                        p.toggleAttribute('hidden', !is);
+                    });
+                }
+                tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.pane)));
+            });
+        </script>
 </body>
 </html>

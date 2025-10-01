@@ -537,7 +537,7 @@ input[type="password"] {
 
 @media (min-width: 768px) {
   .main-content {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 380px 1fr; /* sticky settings on the left */
   }
 
   .api-setup {
@@ -546,6 +546,51 @@ input[type="password"] {
 
   .workout-section {
     grid-column: 1 / -1;
+  }
+}
+
+/* Settings section */
+.settings-section {
+  position: relative;
+}
+.settings-section .settings-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 6px;
+  background: rgba(18, 20, 30, 0.7);
+  border: 1px solid var(--muted-outline);
+  border-radius: 12px;
+  margin-bottom: 14px;
+}
+.settings-section .settings-tab {
+  background: transparent;
+  color: var(--text-1);
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+.settings-section .settings-tab.active {
+  background: rgba(99, 102, 241, 0.12);
+  color: #b9c2ff;
+  border-color: rgba(99, 102, 241, 0.35);
+}
+.settings-section .settings-pane {
+  display: block;
+}
+.settings-section .settings-pane:not(.active) {
+  display: none;
+}
+
+/* Sticky behavior for settings on desktop */
+@media (min-width: 1024px) {
+  .settings-section {
+    position: sticky;
+    top: max(12px, env(safe-area-inset-top));
+    align-self: start;
+    height: fit-content;
   }
 }
 
