@@ -77,7 +77,7 @@
 
         <main class="main-content" id="main-content" style="display: none;">
             <!-- User Profile Section -->
-            <section class="section profile-section">
+            <section class="section profile-section" id="profile">
                 <h2>👤 Profile & Stats</h2>
                 <div class="profile-info">
                     <div class="profile-details">
@@ -109,7 +109,7 @@
             </section>
 
             <!-- Machine Management Section -->
-            <section class="section machine-section">
+            <section class="section machine-section" id="machines">
                 <h2>🏋️ Available Machines</h2>
                 <div class="form-group">
                     <input type="text" id="machine-input" placeholder="Add a machine (e.g. Bench Press, Lat Pulldown)">
@@ -121,7 +121,7 @@
             </section>
 
             <!-- Settings Section (Organized + Out-of-the-ordinary) -->
-            <section class="section settings-section">
+            <section class="section settings-section" id="settings">
                 <h2>⚙️ Settings</h2>
                 <div class="settings-tabs" role="tablist" aria-label="Settings">
                     <button class="settings-tab active" data-pane="settings-basics" role="tab" aria-selected="true">Basics</button>
@@ -251,7 +251,7 @@
             </section>
 
             <!-- Workout Generation Section -->
-            <section class="section workout-section">
+            <section class="section workout-section" id="workout">
                 <h2>🎯 Today's Workout</h2>
                 
                 <button id="generate-workout" class="btn btn-primary btn-large">Generate Workout</button>
@@ -267,8 +267,8 @@
         </main>
     </div>
 
-        <script src="script.js"></script>
-        <script>
+                <script src="script.js"></script>
+                <script>
             // Lightweight tab switcher for Settings
             document.addEventListener('DOMContentLoaded', () => {
                 const tabs = Array.from(document.querySelectorAll('.settings-tab'));
@@ -284,6 +284,51 @@
                 }
                 tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.pane)));
             });
-        </script>
+                </script>
+                <!-- App-like bottom navigation -->
+                <nav class="bottom-nav" role="navigation" aria-label="Primary">
+                    <button class="bottom-nav__item active" data-target="#workout" aria-label="Workout" aria-current="page">
+                        <span class="bottom-nav__icon">🎯</span>
+                        <span class="bottom-nav__label">Workout</span>
+                    </button>
+                    <button class="bottom-nav__item" data-target="#settings" aria-label="Settings">
+                        <span class="bottom-nav__icon">⚙️</span>
+                        <span class="bottom-nav__label">Settings</span>
+                    </button>
+                    <button class="bottom-nav__item" data-target="#machines" aria-label="Machines">
+                        <span class="bottom-nav__icon">🧰</span>
+                        <span class="bottom-nav__label">Machines</span>
+                    </button>
+                    <button class="bottom-nav__item" data-target="#profile" aria-label="Profile">
+                        <span class="bottom-nav__icon">👤</span>
+                        <span class="bottom-nav__label">Profile</span>
+                    </button>
+                </nav>
+                <script>
+                    // Bottom nav: scroll to section and update active state; auto-hide when main is hidden
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const items = Array.from(document.querySelectorAll('.bottom-nav__item'));
+                        const main = document.getElementById('main-content');
+                        const nav = document.querySelector('.bottom-nav');
+                        function activate(btn) {
+                            items.forEach(i => {
+                                const is = i === btn;
+                                i.classList.toggle('active', is);
+                                if (is) i.setAttribute('aria-current', 'page'); else i.removeAttribute('aria-current');
+                            });
+                        }
+                        items.forEach(btn => {
+                            btn.addEventListener('click', () => {
+                                const target = document.querySelector(btn.dataset.target);
+                                if (target) {
+                                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    activate(btn);
+                                }
+                            });
+                        });
+                        // Initial visibility
+                        if (getComputedStyle(main).display === 'none') nav.style.display = 'none';
+                    });
+                </script>
 </body>
 </html>

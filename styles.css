@@ -49,6 +49,13 @@ body {
     max(16px, env(safe-area-inset-left));
 }
 
+/* Reserve space for bottom nav on small screens */
+@media (max-width: 768px) {
+  .container {
+    padding-bottom: calc(90px + env(safe-area-inset-bottom));
+  }
+}
+
 /* Header */
 .header {
   text-align: center;
@@ -1257,6 +1264,45 @@ input[type="password"] {
   input[type="radio"] {
     min-height: 44px;
   }
+}
+
+/* Bottom navigation (app-like) */
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 17, 23, 0.86);
+  backdrop-filter: blur(12px) saturate(1.1);
+  border-top: 1px solid var(--muted-outline);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 8px max(12px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  z-index: 50;
+}
+.bottom-nav__item {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--text-1);
+  padding: 10px 8px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 12px;
+  transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease;
+}
+.bottom-nav__item:active { transform: scale(0.98); }
+.bottom-nav__item.active { color: #c7d2fe; background: rgba(99,102,241,0.16); }
+.bottom-nav__icon { font-size: 18px; line-height: 1; }
+.bottom-nav__label { font-weight: 600; }
+
+@media (min-width: 769px) {
+  .bottom-nav { display: none; }
 }
 
 /* Respect users who prefer reduced motion */
